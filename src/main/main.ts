@@ -43,6 +43,7 @@ import path from 'path'
 // @ts-expect-error - source-map-support doesn't have type definitions
 import * as sourceMapSupport from 'source-map-support'
 import type { ShortcutSetting } from 'src/shared/types'
+import { name as applicationId } from '../../package.json'
 import { applyDevLaunchHashToUrl, buildDevLaunchHash, parseDevLaunchOptions } from '../shared/dev-launch'
 import type { FileEditRequest } from '../shared/file-edits'
 import { KNOWN_LOCAL_PARSER_ERROR_CODES } from '../shared/file-parse-errors'
@@ -259,7 +260,7 @@ if (process.platform === 'linux' && !IS_HARMONY_BUILD) {
 // 这行代码是解决 Windows 通知的标题和图标不正确的问题，标题会错误显示成 electron.app.Chatbox
 // 参考：https://stackoverflow.com/questions/65859634/notification-from-electron-shows-electron-app-electron
 if (process.platform === 'win32') {
-  app.setAppUserModelId(app.name)
+  app.setAppUserModelId(applicationId)
 }
 
 const RESOURCES_PATH = app.isPackaged

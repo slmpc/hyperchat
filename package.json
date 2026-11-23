@@ -1,6 +1,6 @@
 {
-  "name": "xyz.chatboxapp.ce",
-  "productName": "xyz.chatboxapp.ce",
+  "name": "dev.slmpc.hyperchat",
+  "productName": "dev.slmpc.hyperchat",
   "version": "0.0.1",
   "engines": {
     "node": ">=22.13.0 <23.0.0",

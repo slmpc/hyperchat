@@ -1,6 +1,6 @@
 {
-  "name": "xyz.chatboxapp.ce",
-  "productName": "xyz.chatboxapp.ce",
+  "name": "dev.slmpc.hyperchat",
+  "productName": "dev.slmpc.hyperchat",
   "version": "1.24.4",
   "description": "A desktop client for multiple cutting-edge AI models",
   "author": {

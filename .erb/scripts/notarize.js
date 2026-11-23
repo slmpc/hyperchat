@@ -16,7 +16,7 @@ module.exports = async function notarizeMacos(context) {
 
     await notarize({
         tool: 'notarytool',
-        appBundleId: 'xyz.chatboxapp.app',
+        appBundleId: context.packager.appInfo.id,
         appPath: `${appOutDir}/${appName}.app`,
         appleId: process.env.APPLE_ID,
         appleIdPassword: process.env.APPLE_ID_PASS,

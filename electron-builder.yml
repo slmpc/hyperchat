@@ -1,5 +1,5 @@
 productName: Chatbox
-appId: xyz.chatboxapp.app
+appId: dev.slmpc.hyperchat
 # Match packages/chatbox-i18n/src/languages.ts using Windows/Linux locale filenames.
 electronLanguages:
   - en-US
