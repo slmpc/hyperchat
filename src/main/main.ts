@@ -408,7 +408,7 @@ function createTray() {
       accelerator: 'Command+Q',
     },
   ])
-  tray.setToolTip('Chatbox')
+  tray.setToolTip('HyperChat')
   tray.setContextMenu(contextMenu)
   tray.on('double-click', showOrHideWindow)
   return tray
@@ -490,7 +490,7 @@ async function createWindow() {
     state.height = bounds.height
   }
 
-  const qaWindowTitle = MAIN_RUNTIME_POLICY.qaTaskId ? `[QA:${MAIN_RUNTIME_POLICY.qaTaskId}] Chatbox` : undefined
+  const qaWindowTitle = MAIN_RUNTIME_POLICY.qaTaskId ? `[QA:${MAIN_RUNTIME_POLICY.qaTaskId}] HyperChat` : undefined
 
   mainWindow = new BrowserWindow({
     show: false,

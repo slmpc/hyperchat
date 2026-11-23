@@ -2,6 +2,7 @@ import { registerPlugin } from '@capacitor/core'
 import { Box, Button, Flex, Image, NavLink, Stack, Text } from '@mantine/core'
 import SwipeableDrawer from '@mui/material/SwipeableDrawer'
 import { TestId } from '@shared/automation/testids'
+import { PROJECT_RELEASES_URL } from '@shared/project-links'
 import {
   IconCode,
   IconDownload,
@@ -34,7 +35,6 @@ import { useIsSmallScreen, useSidebarWidth } from './hooks/useScreenChange'
 import useVersion from './hooks/useVersion'
 import { navigateToSettings } from './modals/settings-navigation'
 import { trackingEvent } from './packages/event'
-import { buildChatboxUrl } from './packages/remote'
 import platform from './platform'
 import { getSidebarModalSx } from './sidebar-drawer'
 import icon from './static/icon.png'
@@ -118,14 +118,12 @@ export default function Sidebar() {
   }, [isSmallScreen, setShowSidebar, navigate])
 
   const handleDownloadApp = useCallback(() => {
-    void platform.openLink(
-      buildChatboxUrl(`/redirect_app/homepage/${language}?utm_source=web&utm_content=sidebar_download_app#download`)
-    )
+    void platform.openLink(PROJECT_RELEASES_URL)
     if (isSmallScreen) {
       setShowSidebar(false)
     }
     trackingEvent('download_app', { event_category: 'user' })
-  }, [isSmallScreen, language, setShowSidebar])
+  }, [isSmallScreen, setShowSidebar])
 
   const handleResizeStart = useCallback(
     (e: React.MouseEvent) => {
@@ -231,7 +229,7 @@ export default function Sidebar() {
             >
               <Image src={icon} w={20} h={20} />
               <Text span c="chatbox-primary" fz={16} lh="24px" fw={600} truncate>
-                Chatbox
+                HyperChat
               </Text>
               {/\d/.test(versionHook.version) && (
                 <Text span c="chatbox-tertiary" size="sm">
@@ -462,17 +460,6 @@ function SidebarNavRow(props: {
   )
 }
 
-/**
- * About button with update dot indicator.
- * Desktop: shows dot when electron-updater detects update (downloaded/available).
- * Mobile: shows dot when remote API says needCheckUpdate.
- */
-function useShowUpdateDot(versionHook: ReturnType<typeof useVersion>) {
-  const updateStatus = useUpdateStore((s) => s.status)
-  const isMobile = CHATBOX_BUILD_TARGET === 'mobile_app'
-  return isMobile ? versionHook.needCheckUpdate : updateStatus === 'downloaded'
-}
-
 function AboutButton({
   versionHook,
   size,
@@ -485,7 +472,7 @@ function AboutButton({
   onClick: () => void
 }) {
   const { t } = useTranslation()
-  const showDot = useShowUpdateDot(versionHook)
+  const showDot = useUpdateStore((s) => s.status === 'downloaded')
   const label = `${t('About')}${/\d/.test(versionHook.version) ? ` (${versionHook.version})` : ''}`
 
   return (

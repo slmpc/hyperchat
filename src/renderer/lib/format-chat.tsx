@@ -130,7 +130,7 @@ function renderHtmlDocument(sessionName: string, content: string, interactiveScr
         <hr />
         <a href="https://chatboxai.app" style="display: flex; align-items: center;" class="text-sky-500" target="_blank">
             <img src='https://chatboxai.app/icon.png' class="w-12 pr-2">
-            <b style='font-size:30px'>Chatbox AI</b>
+            <b style='font-size:30px'>HyperChat</b>
         </a>
         <p><a href="https://chatboxai.app" target="_blank">https://chatboxai.app</a></p>
     </div>

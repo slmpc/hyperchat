@@ -204,13 +204,13 @@ export class ChatboxAIAPIError extends BaseError {
       name: 'model_not_support_file',
       code: 20011,
       i18nKey:
-        "The {{model}} API doesn't support document understanding. You can use <LinkToAdvancedFileProcessing>Chatbox AI Service</LinkToAdvancedFileProcessing> for cloud-based document analysis, or download <LinkToHomePage>Chatbox Desktop App</LinkToHomePage> for local document analysis.",
+        "The {{model}} API doesn't support document understanding. You can use <LinkToAdvancedFileProcessing>Chatbox AI Service</LinkToAdvancedFileProcessing> for cloud-based document analysis, or download <LinkToHomePage>HyperChat Desktop App</LinkToHomePage> for local document analysis.",
     },
     model_not_support_file_2: {
       name: 'model_not_support_file_2',
       code: 20012,
       i18nKey:
-        "The {{model}} API doesn't support document understanding. You can download <LinkToHomePage>Chatbox Desktop App</LinkToHomePage> for local document analysis.",
+        "The {{model}} API doesn't support document understanding. You can download <LinkToHomePage>HyperChat Desktop App</LinkToHomePage> for local document analysis.",
     },
     // 当前模型不支持发送图片，推荐模型：Chatbox AI 4
     model_not_support_image: {
@@ -240,13 +240,13 @@ export class ChatboxAIAPIError extends BaseError {
       name: 'model_not_support_non_text_file',
       code: 20017,
       i18nKey:
-        'The {{model}} API itself does not support sending files. Due to the complexity of file parsing locally, Chatbox only processes text-based files (including code). For additional file formats and enhanced document understanding capabilities, <LinkToAdvancedFileProcessing>Chatbox AI Service</LinkToAdvancedFileProcessing> is recommended.',
+        'The {{model}} API itself does not support sending files. Due to the complexity of file parsing locally, HyperChat only processes text-based files (including code). For additional file formats and enhanced document understanding capabilities, <LinkToAdvancedFileProcessing>Chatbox AI Service</LinkToAdvancedFileProcessing> is recommended.',
     },
     model_not_support_non_text_file_2: {
       name: 'model_not_support_non_text_file_2',
       code: 20018,
       i18nKey:
-        'The {{model}} API itself does not support sending files. Due to the complexity of file parsing locally, Chatbox only processes text-based files (including code).',
+        'The {{model}} API itself does not support sending files. Due to the complexity of file parsing locally, HyperChat only processes text-based files (including code).',
     },
     system_error: {
       name: 'system_error',

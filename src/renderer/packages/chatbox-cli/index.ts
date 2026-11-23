@@ -28,7 +28,7 @@ async function executeCatalogCommand(
   const definitions = await domainLoaders[entry.domain]()
   const definition = definitions.find((candidate) => sameCommandPath(candidate.path, entry.path))
   if (!definition)
-    throw new Error(`Chatbox CLI command is registered without an implementation: ${entry.path.join(' ')}`)
+    throw new Error(`HyperChat CLI command is registered without an implementation: ${entry.path.join(' ')}`)
   return await definition.execute(context)
 }
 
@@ -48,11 +48,11 @@ function commandHelp(domain?: string): Record<string, unknown> {
     notes: [
       'This is a controlled virtual CLI, not a system shell.',
       'Conversation history reads do not require approval.',
-      'Settings access is read-only. Guide users to Chatbox Settings for changes.',
-      'Starting image generation requires explicit user approval in Chatbox.',
+      'Settings access is read-only. Guide users to HyperChat Settings for changes.',
+      'Starting image generation requires explicit user approval in HyperChat.',
       'Image generation defaults to the first catalog model; pass --model (id or display name) when the user names one.',
       'After image generate is accepted, end the turn and wait for the automated callback. Never poll image status.',
-      'Chatbox shows generated images to the user inline at the generate tool call. Never repeat them in replies.',
+      'HyperChat shows generated images to the user inline at the generate tool call. Never repeat them in replies.',
       'Image history is the device-wide Image Creator history, not the current conversation only.',
     ],
   }
@@ -124,15 +124,15 @@ export async function executeChatboxCli(
 
 export function getChatboxCliDescription(): string {
   return `
-### Chatbox Virtual CLI
+### HyperChat Virtual CLI
 Use \`chatbox_cli\` for read-only settings, conversation history, and image generation.
 Prefer structured \`argv\` input. This is a controlled app tool, not a real shell.
 - Read history without approval: \`["chats", "list"]\`, \`["chats", "search", "query"]\`, \`["chats", "read", "<id>"]\`.
-- Read safe settings: \`["settings", "list"]\`, \`["settings", "get", "appearance.theme"]\`. Settings cannot be changed through this tool; guide the user to the returned Chatbox Settings location to change them manually.
-- Start background image work: \`["image", "generate", "--prompt", "..."]\`. Chatbox shows a localized approval card before submitting the potentially billable request.
+- Read safe settings: \`["settings", "list"]\`, \`["settings", "get", "appearance.theme"]\`. Settings cannot be changed through this tool; guide the user to the returned HyperChat Settings location to change them manually.
+- Start background image work: \`["image", "generate", "--prompt", "..."]\`. HyperChat shows a localized approval card before submitting the potentially billable request.
 - When the user names an image model, pass \`--model\` (model id or display name). Use \`["image", "models"]\` to discover models. Never silently fall back to the default model when the user asked for a specific one.
-- After an accepted image task, end the turn and wait for Chatbox's automated callback. Never poll \`image status\`; use it only after a callback, on explicit user request, or for recovery diagnostics.
-- Chatbox shows generated images to the user inline at the generate tool call. Never repeat them in replies: no markdown images and no image links.
+- After an accepted image task, end the turn and wait for HyperChat's automated callback. Never poll \`image status\`; use it only after a callback, on explicit user request, or for recovery diagnostics.
+- HyperChat shows generated images to the user inline at the generate tool call. Never repeat them in replies: no markdown images and no image links.
 - \`image history\` reads the device-wide Image Creator history, not only the current conversation.
 Background completion arrives as an automated user-role message that explicitly states no human input or approval occurred.
 `

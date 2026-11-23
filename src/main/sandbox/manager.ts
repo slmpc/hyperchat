@@ -944,7 +944,7 @@ async function execHarmonyNodeCode(params: {
         cwd,
         env,
         stdio: ['ignore', 'pipe', 'pipe'],
-        serviceName: 'Chatbox Code Execution',
+        serviceName: 'HyperChat Code Execution',
       })
       const cancelAfterRegistration = trackRunningUtility(params.session, child, params.toolCallId)
 

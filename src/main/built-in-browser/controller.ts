@@ -110,7 +110,7 @@ function captureWithin(contents: WebContents, timeoutMs: number): Promise<Native
 function browserUserAgent(defaultUserAgent: string): string {
   // Many sites refuse or degrade pages for embedded Electron clients.
   return defaultUserAgent
-    .replace(/\s(Electron|xyz\.chatboxapp\.app|chatbox|Chatbox)\/\S+/g, '')
+    .replace(/\s(Electron|xyz\.chatboxapp\.app|dev\.slmpc\.hyperchat|chatbox|Chatbox|HyperChat)\/\S+/g, '')
     .replace(/\s{2,}/g, ' ')
     .trim()
 }
@@ -441,7 +441,7 @@ export class BuiltInBrowserController {
     }
   }
 
-  /** The conversation's download folder in Chatbox data. */
+  /** The conversation's download folder in HyperChat data. */
   private downloadLocation(): DownloadLocation {
     if (!this.sessionId) throw new Error('Downloads are saved only for a conversation.')
     return downloadLocationOf(this.sessionId)

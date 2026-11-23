@@ -53,7 +53,7 @@ function levelsOf(location: DownloadLocation): string[] {
   const relative = path.relative(location.root, location.directory)
   if (!relative) return []
   if (relative.startsWith('..') || path.isAbsolute(relative)) {
-    throw new Error('The download folder must lie inside Chatbox data.')
+    throw new Error('The download folder must lie inside HyperChat data.')
   }
   const parts = relative.split(path.sep)
   return parts.map((_, index) => path.join(location.root, ...parts.slice(0, index + 1)))
@@ -228,7 +228,7 @@ export class PageDownloads {
   /** Starts saving downloads into `location.directory`, until {@link release}. */
   async start(location: DownloadLocation): Promise<DownloadCapture> {
     if (!(await isOwnDirectory(location, true))) {
-      throw new Error('The download folder is not a real directory in Chatbox data.')
+      throw new Error('The download folder is not a real directory in HyperChat data.')
     }
     const capture = { location, tracked: [] }
     this.capture = capture

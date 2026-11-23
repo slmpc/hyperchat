@@ -3,72 +3,13 @@
   <a href="README-CN.md">简体中文</a>
 </p>
 
-这里是 Chatbox 社区版的代码仓库，以 GPLv3 许可证开源。
+HyperChat 基于 [Chatbox 社区版](https://github.com/chatboxai/chatbox)，以 GPLv3 许可证开源，使用你自己的模型提供方 API Key。
 
 [Chatbox 再次开源！](https://github.com/chatboxai/chatbox/issues/2266)
 
-我们定期从专业版仓库同步代码到这个仓库，反之亦然。
+### 下载
 
-### 下载电脑端
-
-<table style="width: 100%">
-  <tr>
-    <td width="25%" align="center">
-      <b>Windows</b>
-    </td>
-    <td width="25%" align="center" colspan="2">
-      <b>MacOS</b>
-    </td>
-    <td width="25%" align="center">
-      <b>Linux</b>
-    </td>
-  </tr>
-  <tr style="text-align: center">
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-windows'>
-        <img src='./statics/windows.png' style="height:24px; width: 24px" />
-        <br />
-        <b>Setup.exe</b>
-      </a>
-    </td>
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-mac-intel'>
-        <img src='./statics/mac.png' style="height:24px; width: 24px" />
-        <br />
-        <b>Intel</b>
-      </a>
-    </td>
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-mac-aarch'>
-        <img src='./statics/mac.png' style="height:24px; width: 24px" />
-        <br />
-        <b style="white-space: nowrap;">Apple Silicon</b>
-      </a>
-    </td>
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-linux'>
-        <img src='./statics/linux.png' style="height:24px; width: 24px" />
-        <br />
-        <b>AppImage</b>
-      </a>
-    </td>
-  </tr>
-</table>
-
-### 下载移动端
-
-<a href='https://apps.apple.com/app/chatbox-ai/id6471368056' style='margin-right: 4px'>
-<img src='./statics/app_store.webp' style="height:38px;" />
-</a>
-<a href='https://play.google.com/store/apps/details?id=xyz.chatboxapp.chatbox' style='margin-right: 4px'>
-<img src='./statics/google_play.png' style="height:38px;" />
-</a>
-<a href='https://chatboxai.app/zh/install?download=android_apk' style='margin-right: 4px; display: inline-flex; justify-content: center'>
-<img src='./statics/android.png' style="height:28px; display: inline-block" />
-.APK
-</a>
-
-更多信息请访问: [chatboxai.app](https://chatboxai.app/)
+查看 [HyperChat 发布页](https://github.com/slmpc/hyperchat/releases)，或按[构建指南](#构建指南)从源码构建。
 
 ---
 
@@ -76,26 +17,25 @@
 <h1 align="center">
 <img src='./statics/icon.png' width='30'>
 <span>
-    Chatbox
-    <span style="font-size:8px; font-weight: normal;">(Community Edition)</span>
+    HyperChat
 </span>
 </h1>
 <p align="center">
-    <em>Chatbox 是一个 AI 模型桌面客户端，支持 ChatGPT、Claude、Google Gemini、Ollama 等主流模型，适用于 Windows、Mac、Linux、Web、Android 和 iOS 全平台</em>
+    <em>HyperChat 是一个 AI 模型桌面客户端，支持 ChatGPT、Claude、Google Gemini、Ollama 等主流模型，适用于 Windows、macOS、Linux 和 Web</em>
 </p>
 
 <p align="center">
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
+<a href="https://github.com/slmpc/hyperchat/releases" target="_blank">
 <img alt="macOS" src="https://img.shields.io/badge/-macOS-black?style=flat-square&logo=apple&logoColor=white" />
 </a>
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
+<a href="https://github.com/slmpc/hyperchat/releases" target="_blank">
 <img alt="Windows" src="https://img.shields.io/badge/-Windows-blue?style=flat-square&logo=windows&logoColor=white" />
 </a>
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
+<a href="https://github.com/slmpc/hyperchat/releases" target="_blank">
 <img alt="Linux" src="https://img.shields.io/badge/-Linux-yellow?style=flat-square&logo=linux&logoColor=white" />
 </a>
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
-<img alt="下载量" src="https://img.shields.io/github/downloads/chatboxai/chatbox/total.svg?style=flat" />
+<a href="https://github.com/slmpc/hyperchat/releases" target="_blank">
+<img alt="下载量" src="https://img.shields.io/github/downloads/slmpc/hyperchat/total.svg?style=flat" />
 </a>
 <a href="https://twitter.com/benn_huang" target="_blank">
 <img alt="Twitter" src="https://img.shields.io/badge/关注-benn_huang-blue?style=flat&logo=Twitter" />
@@ -195,7 +135,7 @@
 1. 从 Github 克隆仓库
 
 ```bash
-git clone https://github.com/chatboxai/chatbox.git
+git clone https://github.com/slmpc/hyperchat.git
 ```
 
 2. 安装所需的依赖

@@ -142,9 +142,9 @@ void runRendererStartup({
     // covering the page forever.
     const root = document.getElementById('root')
     if (root) {
-      root.innerHTML = '<div class="startup-error">Chatbox could not start. Please reload the page.</div>'
+      root.innerHTML = '<div class="startup-error">HyperChat could not start. Please reload the page.</div>'
     }
-    console.error('Failed to bootstrap Chatbox:', error)
+    console.error('Failed to bootstrap HyperChat:', error)
   },
   finalize: () => {
     clearTimeout(tid)

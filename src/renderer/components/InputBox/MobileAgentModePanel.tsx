@@ -274,7 +274,7 @@ const MobileAgentModePanel = forwardRef<AgentModePanelHandle, AgentModePanelProp
       )}
       {workActive && (
         <Text size="xs" c="dimmed">
-          {t('Keep Chatbox in the foreground while tasks are running.')}
+          {t('Keep HyperChat in the foreground while tasks are running.')}
         </Text>
       )}
       <Divider />

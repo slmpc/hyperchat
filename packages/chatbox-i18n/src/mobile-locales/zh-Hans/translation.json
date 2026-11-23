@@ -343,7 +343,7 @@
   "Export Data": "导出数据",
   "Choose what to include in your backup.": "选择要包含在备份中的数据。",
   "Also include": "同时包含",
-  "This will interrupt the import or export. Please wait while Chatbox finishes cleanup.": "这将中断导入或导出。请等待 Chatbox 完成清理。",
+  "This will interrupt the import or export. Please wait while HyperChat finishes cleanup.": "这将中断导入或导出。请等待 HyperChat 完成清理。",
   "Your launcher may take time to update the icon. You may need to add the home screen shortcut again.": "桌面图标可能需要稍后才会更新，你可能需要重新添加主屏幕快捷方式。",
   "Unable to access memory. Please try again.": "暂时无法访问记忆，请重试。",
   "Soda (Default)": "苏打（默认）",

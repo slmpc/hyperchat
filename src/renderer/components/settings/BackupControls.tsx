@@ -170,9 +170,9 @@ export function BackupControls() {
           imported.importReport?.issueCount
             ? t('Import finished with issues. Review the details below.')
             : t('Your backup has been restored.'),
-          imported.refreshPending ? t('Restart Chatbox to refresh the imported data.') : '',
+          imported.refreshPending ? t('Restart HyperChat to refresh the imported data.') : '',
           imported.cleanupPending
-            ? t('Some temporary files could not be removed. Chatbox will try again on the next start.')
+            ? t('Some temporary files could not be removed. HyperChat will try again on the next start.')
             : '',
         ]
           .filter(Boolean)
@@ -187,9 +187,9 @@ export function BackupControls() {
           message: [
             isAbortError(error) ? t('Import cancelled.') : error instanceof Error ? error.message : String(error),
             partial.cleanupPending
-              ? t('Some temporary files could not be removed. Chatbox will try again on the next start.')
+              ? t('Some temporary files could not be removed. HyperChat will try again on the next start.')
               : '',
-            partial.refreshPending ? t('Restart Chatbox to refresh the imported data.') : '',
+            partial.refreshPending ? t('Restart HyperChat to refresh the imported data.') : '',
           ]
             .filter(Boolean)
             .join(' '),

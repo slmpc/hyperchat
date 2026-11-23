@@ -137,14 +137,14 @@ export function buildMobileProductInfoTool(host: MobileProductInfoHost, signal: 
         if (domain === 'version' && argv.length === 1) return await host.getVersion()
         if (domain === 'settings') {
           const settings = safeSettings(host.getSettings())
-          const location = 'Chatbox Settings'
+          const location = 'HyperChat Settings'
           if (action === 'list' && !args.length)
             return { readOnly: true, location, items: Object.entries(settings).map(([key, value]) => ({ key, value })) }
           if (action === 'get' && args.length === 1 && Object.hasOwn(settings, args[0]))
             return { key: args[0], value: settings[args[0] as keyof typeof settings], readOnly: true, location }
           return {
             error:
-              'Unsupported setting or operation. Use settings list. Changes must be made manually in Chatbox Settings.',
+              'Unsupported setting or operation. Use settings list. Changes must be made manually in HyperChat Settings.',
           }
         }
         if (domain !== 'chats' || !['list', 'read', 'search'].includes(action))

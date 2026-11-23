@@ -104,11 +104,11 @@ export function DeepSeekImportControls() {
                   : t('Import completed')}
               </Text>
               {result.refreshPending ? (
-                <Alert color="chatbox-warning">{t('Restart Chatbox to refresh the imported data.')}</Alert>
+                <Alert color="chatbox-warning">{t('Restart HyperChat to refresh the imported data.')}</Alert>
               ) : null}
               {result.cleanupPending ? (
                 <Text size="sm" c="dimmed">
-                  {t('Some temporary files could not be removed. Chatbox will try again on the next start.')}
+                  {t('Some temporary files could not be removed. HyperChat will try again on the next start.')}
                 </Text>
               ) : null}
               <Text>

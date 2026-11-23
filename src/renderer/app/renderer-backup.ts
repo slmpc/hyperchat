@@ -194,13 +194,13 @@ class RendererBackupService {
         format === 'v2' ? { version: await platform.getVersion(), platform: platform.type } : undefined
       let result: BackupExportResult | undefined
       const delivery = await platform.exporter.exportStreamingFile(
-        `chatbox-backup-${new Date().toISOString().slice(0, 10)}${format === 'v1' ? '-v1.json' : format === 'v2' ? '-v2.zip' : '.zip'}`,
+        `hyperchat-backup-${new Date().toISOString().slice(0, 10)}${format === 'v1' ? '-v1.json' : format === 'v2' ? '-v2.zip' : '.zip'}`,
         async function* () {
           const stream = exportBackupStream({
             format,
             application,
             archiveId: options.jobId,
-            producer: 'Chatbox',
+            producer: 'HyperChat',
             selection: exportSelection,
             source: createBackupExportSource(sourceOptions, { includeGlobals: format !== 'v1' }),
             workspace: options.workspace,

@@ -16,7 +16,7 @@ describe('getToolName', () => {
   })
 
   it.each([
-    [{ argv: ['version'] }, 'Chatbox Version'],
+    [{ argv: ['version'] }, 'HyperChat Version'],
     [{ argv: ['account', 'status'] }, 'Account Status'],
     [{ argv: ['account', 'license'] }, 'License Details'],
     [{ argv: ['account', 'quota'] }, 'Quota Details'],
@@ -37,7 +37,7 @@ describe('getToolName', () => {
   it('supports legacy account aliases and safe fallback names', () => {
     expect(getToolName('chatbox_cli', { argv: ['quota'] })).toBe('Quota Details')
     expect(getToolName('chatbox_cli', { argv: ['license', 'refresh'] })).toBe('Refresh Account Status')
-    expect(getToolName('chatbox_cli', { argv: ['help'] })).toBe('Chatbox')
-    expect(getToolName('chatbox_cli', { command: '"unterminated' })).toBe('Chatbox')
+    expect(getToolName('chatbox_cli', { argv: ['help'] })).toBe('HyperChat')
+    expect(getToolName('chatbox_cli', { command: '"unterminated' })).toBe('HyperChat')
   })
 })

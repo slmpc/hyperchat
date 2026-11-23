@@ -1,4 +1,5 @@
 import { app, type BrowserWindow, Menu, type MenuItemConstructorOptions, shell } from 'electron'
+import { PROJECT_RELEASES_URL, PROJECT_URL } from '../shared/project-links'
 import Locale from './locales'
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
@@ -78,17 +79,17 @@ export default class MenuBuilder {
 
   buildDarwinTemplate(): MenuItemConstructorOptions[] {
     const subMenuAbout: DarwinMenuItemConstructorOptions = {
-      label: 'Chatbox',
+      label: 'HyperChat',
       submenu: [
         {
-          label: 'About Chatbox',
+          label: 'About HyperChat',
           selector: 'orderFrontStandardAboutPanel:',
         },
         { type: 'separator' },
         { label: 'Services', submenu: [] },
         { type: 'separator' },
         {
-          label: 'Hide Chatbox',
+          label: 'Hide HyperChat',
           accelerator: 'Command+H',
           selector: 'hide:',
         },
@@ -218,15 +219,15 @@ export default class MenuBuilder {
       label: 'Help',
       submenu: [
         {
-          label: 'Learn More',
+          label: 'Releases',
           click() {
-            shell.openExternal('https://chatboxai.app')
+            shell.openExternal(PROJECT_RELEASES_URL)
           },
         },
         {
           label: 'Github Repo',
           click() {
-            shell.openExternal('https://github.com/chatboxai/chatbox')
+            shell.openExternal(PROJECT_URL)
           },
         },
         // {
@@ -236,7 +237,7 @@ export default class MenuBuilder {
         //   },
         // },
         {
-          label: 'Search Issues',
+          label: 'Upstream Issues',
           click() {
             shell.openExternal('https://github.com/chatboxai/chatbox/issues?q=is%3Aissue')
           },
@@ -309,15 +310,15 @@ export default class MenuBuilder {
         label: 'Help',
         submenu: [
           {
-            label: 'Learn More',
+            label: 'Releases',
             click() {
-              shell.openExternal('https://chatboxai.app')
+              shell.openExternal(PROJECT_RELEASES_URL)
             },
           },
           {
             label: 'Github Repo',
             click() {
-              shell.openExternal('https://github.com/chatboxai/chatbox')
+              shell.openExternal(PROJECT_URL)
             },
           },
           // {
@@ -327,7 +328,7 @@ export default class MenuBuilder {
           //   },
           // },
           {
-            label: 'Search Issues',
+            label: 'Upstream Issues',
             click() {
               shell.openExternal('https://github.com/chatboxai/chatbox/issues?q=is%3Aissue')
             },

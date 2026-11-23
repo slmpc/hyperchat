@@ -1,8 +1,10 @@
-export const CHATBOX_PRODUCT_SOURCES = `## Source of truth
+import { PROJECT_URL } from '../project-links'
 
-- Start from https://chatboxai.app/llms.txt for current machine-readable discovery links.
-- For client guides, follow the relevant documentation links from llms.txt. This build uses user-configured model providers.
-- For developer, authentication, API, MCP, or integration questions, follow the relevant docs links from llms.txt.`
+export const CHATBOX_PRODUCT_SOURCES = `## Documentation sources
+
+- Start with the HyperChat README and source code at ${PROJECT_URL}.
+- For inherited client features and integrations, consult the upstream documentation at https://chatboxai.app/llms.txt and verify that the feature is available in HyperChat.
+- HyperChat uses user-configured model providers.`
 
 export const CHATBOX_PRODUCT_ANSWERING_RULES = `## Answering rules
 

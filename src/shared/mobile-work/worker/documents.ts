@@ -82,7 +82,7 @@ export function createDocumentTools(files: WorkerFiles) {
       const presentation = new PptxGenJS()
       presentation.layout = 'LAYOUT_WIDE'
       presentation.title = text(specification.title, 'Presentation')
-      presentation.author = 'Chatbox'
+      presentation.author = 'HyperChat'
       for (const slideInput of items(specification.slides, MAX_SLIDES)) {
         const specification = object(slideInput)
         const slide = presentation.addSlide()

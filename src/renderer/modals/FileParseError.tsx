@@ -5,6 +5,7 @@ import {
   LOCAL_PARSER_MAX_PDF_FILE_SIZE_LABEL,
   LOCAL_PARSER_PDF_PASSWORD_PROTECTED_ERROR,
 } from '@shared/file-parse-errors'
+import { PROJECT_RELEASES_URL } from '@shared/project-links'
 import { IconAlertCircle } from '@tabler/icons-react'
 import { Trans, useTranslation } from 'react-i18next'
 import { AdaptiveModal } from '@/components/common/AdaptiveModal'
@@ -130,7 +131,7 @@ const FileParseError = NiceModal.create(({ errorCode, fileName }: FileParseError
               }}
             />
           ),
-          LinkToHomePage: <LinkTargetBlank href="https://chatboxai.app" />,
+          LinkToHomePage: <LinkTargetBlank href={PROJECT_RELEASES_URL} />,
         }}
       />
     )

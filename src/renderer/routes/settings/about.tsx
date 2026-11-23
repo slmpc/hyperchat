@@ -9,7 +9,7 @@ import platform from '@/platform'
 import { router } from '@/router'
 import { UpdateSection } from '@/routes/about'
 import iconPNG from '@/static/icon.png'
-import { useLanguage, useSettingsStore } from '@/stores/settingsStore'
+import { useSettingsStore } from '@/stores/settingsStore'
 
 export const Route = createFileRoute('/settings/about')({
   component: RouteComponent,
@@ -18,7 +18,6 @@ export const Route = createFileRoute('/settings/about')({
 export function RouteComponent() {
   const { t } = useTranslation()
   const version = useVersion()
-  const language = useLanguage()
   const autoLaunch = useSettingsStore((s) => s.autoLaunch)
   const autoUpdate = useSettingsStore((s) => s.autoUpdate)
   const betaUpdate = useSettingsStore((s) => s.betaUpdate)
@@ -33,14 +32,14 @@ export function RouteComponent() {
           label={
             <Flex align="center" gap="sm">
               <Image src={iconPNG} w={32} h={32} radius="md" />
-              <span>Chatbox{hasVersion ? ` ${version.version}` : ''}</span>
+              <span>HyperChat{hasVersion ? ` ${version.version}` : ''}</span>
             </Flex>
           }
-          control={<UpdateSection language={language} needCheckUpdate={version.needCheckUpdate} />}
+          control={<UpdateSection />}
         />
         <SettingRow
           id="about-chatbox"
-          label={t('About Chatbox')}
+          label={t('About HyperChat')}
           control={
             <Button
               // The app router, not the settings one: settings can be open as an overlay whose

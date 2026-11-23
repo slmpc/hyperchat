@@ -53,7 +53,7 @@ const MAX_MODELS_IN_ERROR = 20
 
 function describeAvailableImageModels(models: AvailableImageModel[]): string {
   if (models.length === 0) {
-    return 'No image models are configured. Configure an image-capable provider in Chatbox Settings.'
+    return 'No image models are configured. Configure an image-capable provider in HyperChat Settings.'
   }
   const entries = models
     .slice(0, MAX_MODELS_IN_ERROR)
@@ -146,7 +146,7 @@ function compactReference(reference: string): string {
 }
 
 const IMAGES_ALREADY_DISPLAYED_NOTE =
-  'Chatbox already displays these generated images to the user inline at the originating tool call in this chat. Do not render them again: no markdown images and no image links. A brief text confirmation is enough.'
+  'HyperChat already displays these generated images to the user inline at the originating tool call in this chat. Do not render them again: no markdown images and no image links. A brief text confirmation is enough.'
 
 // The originating tool step renders a CLI-sourced record's images inline, so results
 // returned to the model in that chat must not carry renderable references the model
@@ -257,7 +257,7 @@ function restoredExecutionResult(record: ImageGeneration): Record<string, unknow
         managedBy: 'chatbox',
         modelShouldPoll: false,
       },
-      message: 'This image request is already running. End this turn and wait for the existing Chatbox callback.',
+      message: 'This image request is already running. End this turn and wait for the existing HyperChat callback.',
     }
   }
 
@@ -420,7 +420,7 @@ async function generateImage(context: ChatboxCliCommandContext): Promise<Record<
     throw new ChatboxCliUsageError(
       availableModels?.length
         ? `Unable to resolve an image model. ${describeAvailableImageModels(availableModels)}`
-        : 'No image models are configured. Configure an image-capable provider in Chatbox Settings, then retry.'
+        : 'No image models are configured. Configure an image-capable provider in HyperChat Settings, then retry.'
     )
   }
   const signature = JSON.stringify({
@@ -542,7 +542,7 @@ async function generateImage(context: ChatboxCliCommandContext): Promise<Record<
         modelShouldPoll: false,
         ...(handle.monitoring.mode === 'polling' ? { pollIntervalMs: handle.monitoring.intervalMs } : {}),
       },
-      message: 'Image generation is running in the background. End this turn and wait for Chatbox to call you back.',
+      message: 'Image generation is running in the background. End this turn and wait for HyperChat to call you back.',
     }
   })
 }

@@ -43,7 +43,7 @@ export const BuiltinServersSection: FC = () => {
   const onEnabledChange = useToggleMCPServer()
   return (
     <SettingsSection
-      title={`Chatbox ${t('Builtin MCP Servers')}`}
+      title={`HyperChat ${t('Builtin MCP Servers')}`}
       description={t('One-click MCP servers for Chatbox AI subscribers')}
     >
       {BUILTIN_MCP_SERVERS.map((config) => (

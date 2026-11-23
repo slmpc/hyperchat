@@ -16,8 +16,8 @@ export function mobileSkillLabels(t: (key: string) => string) {
   return [
     {
       name: 'chatbox-product-info',
-      title: t('Chatbox Product Info'),
-      description: t('Get Chatbox product help and query account quota, settings, and chat history.'),
+      title: t('HyperChat Product Info'),
+      description: t('Get HyperChat product help and query settings and chat history.'),
     },
     {
       name: 'documents',

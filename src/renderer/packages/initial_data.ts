@@ -98,13 +98,13 @@ export const defaultSessionsForEN: Session[] = [
       },
       {
         id: 'e99f80e0-b5a4-4a4d-954e-9ad20c8465e7',
-        content: 'Tweet out to let everyone know: The latest version of Chatbox has been released',
+        content: 'Write a social media post about the latest version of HyperChat',
         role: 'user' as const,
       },
       {
         id: 'eb6218ad-439d-4e15-847b-0382f844f96e',
         content:
-          '"Exciting news! The latest version of Chatbox has just been released. Get ready to experience amazing features and seamless AI conversations. Upgrade now and unleash your productivity potential! #Chatbox #MessagingApp #Upgrade"',
+          '"HyperChat has a new version! Bring your own API key and chat with models from different providers in one app. #HyperChat"',
         role: 'assistant' as const,
         model: 'Chatbox AI',
         generating: false,
@@ -222,13 +222,13 @@ export const defaultSessionsForCN: Session[] = [
       },
       {
         id: '49deeb2b-db25-462e-9886-ff94efca70d2',
-        content: 'Chatbox 最新版本发布啦',
+        content: '写一篇 HyperChat 新版本发布的小红书笔记',
         role: 'user' as const,
       },
       {
         id: '014f9bf6-a164-4866-87d9-558db3acbef9',
         content:
-          '小仙女们，Chatbox 又双叒叕更新啦！这次版本新增了好多好多小细节哦，让我们快来看看吧~✨✨✨\n\n首先，Chatbox 在此次更新中为大家加入了许多优化体验！让聊天变得更加愉快、更加流畅。而且还有一些小搭档的出现，帮助你更高效地完成工作🔥🔥🔥\n\n此外，Chatbox 为大家特别准备了一个新的 AI 服务：Chatbox AI，可以直接使用哦，再也不用折腾 API KEY 和技术术语啦💗💗💗💗\n\n最后，记得分享和转发这篇笔记让更多小伙伴们一起使用，分享快乐哦😁😁😁😁\n\n快来下载最新版的 Chatbox，开启与小伙伴们的新生活吧！\n💬 #Chatbox新版本 #AI神器 #人生苦短我用Chatbox#',
+          'HyperChat 更新啦！✨ 在设置里填入你自己的模型提供方 API Key，就能在同一个应用里和不同的 AI 模型聊天。\n\n写作、读文件、聊代码，都可以从一个新对话开始。你最常用哪个模型？💬\n\n#HyperChat #AI工具',
         role: 'assistant' as const,
         model: 'Chatbox AI',
         generating: false,
@@ -311,7 +311,7 @@ export const imageCreatorSessionForCN: Session = {
     {
       id: 'chatbox-chat-demo-image-creator-message-id-1',
       role: 'system' as const,
-      content: `Hi！我是 Chatbox Image Creator，“无情”的图片制造机。我可以根据你的描述生成精美图片，只要你能想象得到，我就能创造出来——迷人的风景、生动的角色、App 图标、或者抽象的构思……
+      content: `Hi！我是 HyperChat 的图片创作助手。我可以根据你的描述生成图片，比如风景、人物、应用图标或抽象图案。
 
 (๑•́ ₃ •̀๑) 额…我是一个有点自闭的机器人，所以**请直接告诉我你想要图片的文字描述**，我会集中我所有的像素去实现你的想象。
 
@@ -424,7 +424,7 @@ export const imageCreatorSessionForEN: Session = {
     {
       id: 'chatbox-chat-demo-image-creator-message-id-1',
       role: 'system' as const,
-      content: `Hi! I'm Chatbox Image Creator, your artistic AI companion dedicated to converting your words into striking visuals. If you can dream it, I can create it—from enchanting landscapes, dynamic characters, app icons to the abstract and beyond.
+      content: `Hi! I'm HyperChat's image creator. Describe a landscape, character, app icon, or abstract design to get started.
 
 I'm a quiet robot, just **simply tell me the description of the image you have in mind**, and I'll focus all my pixels into crafting your vision.
 

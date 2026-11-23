@@ -18,7 +18,7 @@
 | preload | `src/preload/` | `out/preload/index.js` | 受限 Node.js |
 | renderer | `src/renderer/` | `out/renderer/` | Chromium |
 
-打包使用 **electron-builder**，配置在 `electron-builder.yml`，产出 dmg/nsis/AppImage/deb 格式安装包。发布通过 Cloudflare R2 S3 兼容存储分发，客户端内置自动更新（`electron-updater`）。
+打包使用 **electron-builder**，配置在 `electron-builder.yml`，产出 dmg/nsis/AppImage/deb 格式安装包。客户端通过 `electron-updater` 从 [HyperChat GitHub Releases](https://github.com/slmpc/hyperchat/releases) 获取桌面更新。
 
 ---
 
@@ -136,37 +136,7 @@ beforePack → installAppDependencies → copyAppFiles/asar → afterPack → si
 
 ## Windows 签名
 
-Windows 安装包由 `electron-builder` 构建为 NSIS 安装包，并通过 `win.signtoolOptions.sign` 调用根目录的 `custom_win_sign.js`。签名脚本使用 AzureSignTool 连接 Azure Key Vault，调用保存在 Key Vault 中的 GlobalSign 代码签名证书完成 Authenticode 签名。
-
-CI 中 `build-windows` job 的签名流程：
-
-1. 安装 .NET 8 SDK
-2. 通过 `dotnet tool install --global AzureSignTool --version 7.0.1` 安装 AzureSignTool
-3. 从 GitHub Secrets 注入 Azure Key Vault 配置
-4. 运行 `npm run electron:publish-win`，由 electron-builder 在打包过程中逐个调用 `custom_win_sign.js`
-
-需要配置的 GitHub Secrets：
-
-| Secret | 说明 |
-|--------|------|
-| `AZURE_KEY_VAULT_URL` | Azure Key Vault URL，例如 `https://example.vault.azure.net/` |
-| `AZURE_KEY_VAULT_CLIENT_ID` | 有 Key Vault 签名权限的 Azure App Registration client ID |
-| `AZURE_KEY_VAULT_CLIENT_SECRET` | 该 App Registration 的 client secret |
-| `AZURE_KEY_VAULT_TENANT_ID` | Azure AD tenant ID |
-| `AZURE_KEY_VAULT_CERTIFICATE_NAME` | Key Vault 中的代码签名证书名称 |
-
-签名脚本默认使用 GlobalSign RFC 3161 时间戳服务 `http://timestamp.globalsign.com/tsa/advanced`，并使用 SHA-256 文件摘要和时间戳摘要。可选覆盖项：
-
-| 环境变量 | 默认值 |
-|----------|--------|
-| `AZURE_SIGNTOOL_TIMESTAMP_URL` | `http://timestamp.globalsign.com/tsa/advanced` |
-| `AZURE_SIGNTOOL_FILE_DIGEST` | `sha256` |
-| `AZURE_SIGNTOOL_TIMESTAMP_DIGEST` | `sha256` |
-| `AZURE_SIGNTOOL_DESCRIPTION` | `Chatbox` |
-| `AZURE_SIGNTOOL_DESCRIPTION_URL` | `https://chatboxai.app` |
-| `WINDOWS_CODE_SIGNING_DISABLED` | 未设置；设为 `true`/`1`/`yes` 可显式跳过签名 |
-
-alpha 通道沿用原行为，不注入签名 secrets，因此会跳过 Windows 代码签名。本地构建如果没有任何 Azure Key Vault 签名配置，也会跳过签名；如果只配置了一部分变量，脚本会失败并列出缺失项，避免误产出未签名的发布包。
+Windows 安装包由 `electron-builder` 构建为 NSIS 安装包。发布签名包时，可通过 electron-builder 的 `WIN_CSC_LINK` 和 `WIN_CSC_KEY_PASSWORD` 提供代码签名证书。
 
 ---
 
@@ -208,7 +178,6 @@ pnpm 迁移后，CI 的关键变更：
 - `CHATBOX_BUILD_TARGET`：`'mobile_app'` | 默认（桌面/Web）
 - `CHATBOX_BUILD_PLATFORM`：`'ios'` | `'android'` | `'web'` | 默认
 - `USE_LOCAL_API=true`：开发环境使用本地后端
-- `UPDATE_CHANNEL`：更新通道（stable/alpha），传递给 S3 publish path
 
 ---
 

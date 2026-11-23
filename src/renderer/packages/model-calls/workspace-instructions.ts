@@ -57,7 +57,7 @@ export async function buildWorkspaceInstructions(userWorkingDirectories?: string
 
   return `
 ## Workspace Instructions
-Chatbox automatically checks each user-selected working directory for a root AGENTS.md and injects its content below. Follow those instructions for every file in their scope. When working in a nested directory, check whether a closer AGENTS.md applies and follow the most specific instructions. System and user instructions take precedence.
+HyperChat automatically checks each user-selected working directory for a root AGENTS.md and injects its content below. Follow those instructions for every file in their scope. When working in a nested directory, check whether a closer AGENTS.md applies and follow the most specific instructions. System and user instructions take precedence.
 
 User-selected working directories:
 ${displayDirectories.map((directory) => `- ${directory}`).join('\n')}

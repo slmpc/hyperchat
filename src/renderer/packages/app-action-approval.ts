@@ -14,7 +14,7 @@ export class AppActionApprovalPausedError extends Error {
     readonly preview: string,
     readonly details?: AppActionApprovalDetails
   ) {
-    super(`User approval required before running Chatbox action: ${action}`)
+    super(`User approval required before running HyperChat action: ${action}`)
     this.name = 'AppActionApprovalPausedError'
   }
 }

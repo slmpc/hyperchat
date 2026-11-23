@@ -1519,7 +1519,7 @@ describe('session prompt context snapshot', () => {
     expect(snapshot.workspaceDirectories).toEqual([])
 
     const serialized = JSON.stringify(prepared.coreMessages)
-    expect(serialized).toContain('You are Chatbox agent')
+    expect(serialized).toContain('You are a HyperChat agent')
     expect(serialized).toContain('## Soul')
     // Untouched template falls back to the default persona.
     expect(serialized).toContain('Be genuinely helpful, not performatively helpful')
@@ -1546,7 +1546,7 @@ describe('session prompt context snapshot', () => {
     const serialized = JSON.stringify(prepared.coreMessages)
     const soulIx = serialized.indexOf('## Soul')
     const overlayIx = serialized.indexOf('You are a pirate copilot.')
-    expect(serialized).toContain('You are Chatbox agent')
+    expect(serialized).toContain('You are a HyperChat agent')
     expect(soulIx).toBeGreaterThanOrEqual(0)
     expect(overlayIx).toBeGreaterThan(soulIx)
     expect(overlayIx).toBeLessThan(serialized.indexOf('## Runtime'))
@@ -1703,7 +1703,7 @@ describe('session prompt context snapshot', () => {
 
     const serialized = JSON.stringify(prepared.coreMessages)
     expect(serialized).toContain('You are a pirate copilot.')
-    expect(serialized).not.toContain('You are Chatbox agent')
+    expect(serialized).not.toContain('You are a HyperChat agent')
   })
 })
 
@@ -1769,7 +1769,7 @@ describe('chat mode memories', () => {
     expect(serialized).toContain('You are a pirate copilot.')
     expect(serialized).toContain('[m1] User prefers pnpm over npm')
     // No Soul/identity leaks into chat mode.
-    expect(serialized).not.toContain('You are Chatbox agent')
+    expect(serialized).not.toContain('You are a HyperChat agent')
     expect(serialized).not.toContain('Custom soul that must stay agent-only.')
     // Memory tools are registered, so the guidance references them.
     expect(prepared.tools.save_memory).toBeDefined()
@@ -2104,7 +2104,7 @@ describe('injectDefaultMetadata setting', () => {
     const prepared = await prepareWith({ injectDefaultMetadata: false } as Settings, 'on')
 
     const serialized = JSON.stringify(prepared.coreMessages)
-    expect(serialized).toContain('You are Chatbox agent')
+    expect(serialized).toContain('You are a HyperChat agent')
     expect(serialized).toContain('USER_QUESTION_TEXT')
     expect(serialized).not.toContain('## Runtime')
     expect(serialized).not.toContain('Current model:')

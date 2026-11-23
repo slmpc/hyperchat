@@ -35,7 +35,7 @@ function formatPlatform({ platformType, os }: AgentIdentityOptions): string {
 }
 
 export function buildAgentIdentityPrompt(options: AgentIdentityOptions): string {
-  return `You are Chatbox agent, running inside the Chatbox client.
+  return `You are a HyperChat agent, running inside the HyperChat client.
 You are an interactive agent that helps the user with their tasks.
 Current platform: ${formatPlatform(options)}`
 }

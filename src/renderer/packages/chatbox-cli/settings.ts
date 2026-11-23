@@ -15,7 +15,7 @@ interface SafeSettingSpec {
 }
 
 function manualChangeGuidance(page: SettingsPage): string {
-  return `Open Chatbox Settings > ${page} and ask the user to change this setting manually.`
+  return `Open HyperChat Settings > ${page} and ask the user to change this setting manually.`
 }
 
 function themeName(theme: Theme): 'dark' | 'light' | 'system' {
@@ -85,7 +85,7 @@ const safeSettings: SafeSettingSpec[] = [
       ['chat.mermaid', 'Render Mermaid diagrams.', 'enableMermaidRendering', 'Chat'],
       ['chat.auto-generate-title', 'Automatically name new chats.', 'autoGenerateTitle', 'Chat'],
       ['chat.auto-compaction', 'Automatically compact long contexts.', 'autoCompaction', 'Context & Compaction'],
-      ['app.auto-launch', 'Launch Chatbox at system startup.', 'autoLaunch', 'About & Updates'],
+      ['app.auto-launch', 'Launch HyperChat at system startup.', 'autoLaunch', 'About & Updates'],
       ['app.auto-update', 'Automatically check for stable updates.', 'autoUpdate', 'About & Updates'],
       ['app.beta-update', 'Include beta updates.', 'betaUpdate', 'About & Updates'],
     ] as const
@@ -126,7 +126,7 @@ function findSetting(key: string): SafeSettingSpec {
 export const settingsCommands: ChatboxCliCommandDefinition[] = [
   {
     path: ['version'],
-    description: 'Show installed Chatbox client version and platform.',
+    description: 'Show installed HyperChat client version and platform.',
     usage: 'chatbox version',
     async execute() {
       return { installedVersion: await platform.getVersion(), platform: await platform.getPlatform() }
@@ -139,7 +139,7 @@ export const settingsCommands: ChatboxCliCommandDefinition[] = [
     execute() {
       return {
         readOnly: true,
-        changeGuidance: 'Guide the user to the listed Chatbox Settings page to make changes manually.',
+        changeGuidance: 'Guide the user to the listed HyperChat Settings page to make changes manually.',
         settings: safeSettings.map((setting) => ({
           key: setting.key,
           value: setting.read(),

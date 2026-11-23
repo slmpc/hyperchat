@@ -136,7 +136,7 @@ export function RouteComponent() {
           id="error-reporting"
           label={t('Error Reporting')}
           description={t(
-            'Chatbox respects your privacy and only uploads anonymous error data and events when necessary. You can change your preferences at any time in the settings.'
+            'HyperChat respects your privacy and only uploads anonymous error data and events when necessary. You can change your preferences at any time in the settings.'
           )}
           checked={allowReportingAndTracking}
           onChange={(checked) => setSettings({ allowReportingAndTracking: checked })}

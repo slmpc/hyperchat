@@ -15,7 +15,7 @@ Main Process                           Renderer Process
 │  (app-updater.ts)    │   IPC events  │  (Zustand)           │
 │                      │──────────────>│                      │
 │  - electron-updater  │  updater:*    │  状态机:             │
-│  - 5 URL fallback    │               │  idle → checking →   │
+│  - GitHub Releases   │               │  idle → checking →   │
 │  - 1h 定时检查       │               │    ├→ up-to-date     │
 │  - isChecking 互斥   │               │    ├→ available →    │
 │                      │               │    │  downloading →   │
@@ -45,18 +45,9 @@ Main Process                           Renderer Process
 3. **自动下载**：`autoDownload = true`，发现更新后自动下载
 4. **退出时安装**：`autoInstallOnAppQuit = true`
 
-### Feed URL Fallback
+### 发布源
 
-为应对 CDN 或 DNS 故障，`tryUpdate()` 会依次尝试 5 个 feed URL：
-
-```
-chatboxai.app → api.chatboxai.app → api.ai-chatbox.com
-→ api.chatboxapp.xyz → api.chatboxai.com
-```
-
-- 每次尝试通过 `autoUpdater.setFeedURL()` 切换源
-- 中间失败的 error 事件被 `suppressError` 标志屏蔽，避免 UI 闪烁
-- 仅当全部失败时抛出异常，由调用方统一处理错误
+打包时，electron-builder 将 [HyperChat GitHub Releases](https://github.com/slmpc/hyperchat/releases) 写入应用的更新配置。开启 `betaUpdate` 后，客户端也会检查 Beta 预发布版本。
 
 ### IPC 通道
 
@@ -193,7 +184,7 @@ pnpm test -- --run src/renderer/stores/updateStore.test.ts
 
    ```bash
    pnpm build
-   UPDATE_CHANNEL=latest pnpm exec electron-builder build --publish never
+   pnpm exec electron-builder build --publish never
    ```
 
    产物在 `release/build/`，包含 arm64 和 x64 两个 DMG。
@@ -215,17 +206,6 @@ pnpm test -- --run src/renderer/stores/updateStore.test.ts
 3. **模拟更新失败**
 
    断网测试：关闭 Wi-Fi 后点击"检查更新"，验证错误提示和重试功能。
-
-4. **验证 Feed URL Fallback**
-
-   查看日志文件确认 fallback 行为：
-
-   ```bash
-   # macOS
-   tail -f ~/Library/Logs/xyz.chatboxapp.app/main.log | grep auto_updater
-   ```
-
-   正常情况下第一个 URL 成功即返回；如果失败会看到 `attempt failed: <url>` 日志。
 
 ### 本地更新服务器测试
 
@@ -254,7 +234,7 @@ cd release/app
 # 打包
 cd ../..
 pnpm build
-UPDATE_CHANNEL=latest pnpm exec electron-builder build --publish never
+pnpm exec electron-builder build --publish never
 ```
 
 安装这个 DMG 作为测试用的"旧版本"。
@@ -266,12 +246,12 @@ UPDATE_CHANNEL=latest pnpm exec electron-builder build --publish never
 ```bash
 # 修改版本号为 "1.1.0"
 pnpm build
-UPDATE_CHANNEL=latest pnpm exec electron-builder build --publish never
+pnpm exec electron-builder build --publish never
 ```
 
 打包完成后 `release/build/` 中会生成：
-- `Chatbox-1.1.0-arm64-mac.zip` + `.blockmap`
-- `Chatbox-1.1.0-arm64.dmg` + `.blockmap`
+- `HyperChat-1.1.0-arm64-mac.zip` + `.blockmap`
+- `HyperChat-1.1.0-arm64.dmg` + `.blockmap`
 - `latest-mac.yml`（自动生成的元数据文件）
 
 **Step 3: 启动本地更新服务器**
@@ -293,22 +273,20 @@ curl http://localhost:8080/latest-mac.yml
 ```yaml
 version: 1.1.0
 files:
-  - url: Chatbox-1.1.0-arm64-mac.zip
+  - url: HyperChat-1.1.0-arm64-mac.zip
     sha512: ...
     size: ...
-path: Chatbox-1.1.0-arm64-mac.zip
+path: HyperChat-1.1.0-arm64-mac.zip
 sha512: ...
 releaseDate: '2026-04-04T...'
 ```
 
 **Step 4: 修改 feed URL 指向本地**
 
-临时修改 `src/main/app-updater.ts` 中的 feedUrls：
+在 `src/main/app-updater.ts` 的 `tryUpdate()` 中，临时在 `checkForUpdates()` 前设置本地更新源：
 
 ```typescript
-const feedUrls = [
-  'http://localhost:8080',
-]
+autoUpdater.setFeedURL('http://localhost:8080')
 ```
 
 然后重新打包"旧版本"（Step 1 的版本号），安装并启动。

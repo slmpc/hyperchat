@@ -1,33 +1,16 @@
-import {
-  Anchor,
-  Box,
-  Button,
-  Container,
-  Divider,
-  Flex,
-  Image,
-  Popover,
-  Progress,
-  Stack,
-  Text,
-  Title,
-} from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
-import { IconChevronRight, IconFileText, IconHome, IconMessage2, IconPencil, IconRefresh } from '@tabler/icons-react'
+import { Anchor, Box, Button, Container, Divider, Flex, Image, Progress, Stack, Text, Title } from '@mantine/core'
+import { PROJECT_RELEASES_URL, PROJECT_URL } from '@shared/project-links'
+import { IconChevronRight, IconFileText, IconMessage2, IconRefresh } from '@tabler/icons-react'
 import { createFileRoute } from '@tanstack/react-router'
 import { Fragment, type ReactElement } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScalableIcon } from '@/components/common/ScalableIcon'
 import BrandGithub from '@/components/icons/BrandGithub'
-import BrandRedNote from '@/components/icons/BrandRedNote'
-import BrandWechat from '@/components/icons/BrandWechat'
 import Page from '@/components/layout/Page'
 import { useIsSmallScreen } from '@/hooks/useScreenChange'
 import useVersion from '@/hooks/useVersion'
-import { buildChatboxUrl } from '@/packages/remote'
 import platform from '@/platform'
 import iconPNG from '@/static/icon.png'
-import IMG_WECHAT_QRCODE from '@/static/wechat_qrcode.png'
 import { useLanguage } from '@/stores/settingsStore'
 import { installUpdate, useUpdateStore } from '@/stores/updateStore'
 
@@ -49,35 +32,14 @@ function RouteComponent() {
             <Image h={100} w={100} mah={'20vw'} maw={'20vw'} src={iconPNG} />
             <Stack flex={1} gap="xxs">
               <Flex justify="space-between" align="center" wrap="wrap" gap={isSmallScreen ? 'xs' : 'sm'} rowGap="xs">
-                <Title order={5} lh={1.5} lineClamp={1} title={`Chatbox v${version.version}`}>
-                  Chatbox {/\d/.test(version.version) ? `(v${version.version})` : ''}
+                <Title order={5} lh={1.5} lineClamp={1} title={`HyperChat v${version.version}`}>
+                  HyperChat {/\d/.test(version.version) ? `(v${version.version})` : ''}
                 </Title>
 
-                <UpdateSection language={language} needCheckUpdate={version.needCheckUpdate} />
+                <UpdateSection />
               </Flex>
               <Text>{t('about-slogan')}</Text>
               <Text c="chatbox-tertiary">{t('about-introduction')}</Text>
-
-              <Flex gap="sm">
-                <Anchor
-                  size="sm"
-                  href="https://chatboxai.app/privacy"
-                  target="_blank"
-                  underline="hover"
-                  c="chatbox-tertiary"
-                >
-                  {t('Privacy Policy')}
-                </Anchor>
-                <Anchor
-                  size="sm"
-                  href="https://chatboxai.app/terms"
-                  target="_blank"
-                  underline="hover"
-                  c="chatbox-tertiary"
-                >
-                  {t('User Terms')}
-                </Anchor>
-              </Flex>
             </Stack>
           </Flex>
 
@@ -85,44 +47,20 @@ function RouteComponent() {
             <ListItem
               icon={<BrandGithub className="w-full h-full" />}
               title={t('Github')}
-              link="https://github.com/chatboxai/chatbox"
-              value="chatbox"
-            />
-            {/* <ListItem
-              icon={<BrandX className="w-full h-full" />}
-              title={t('X(Twitter)')}
-              link="https://x.com/ChatboxAI_HQ"
-              value="@ChatboxAI_HQ"
-            /> */}
-            <ListItem
-              icon={<BrandRedNote className="w-full h-full" />}
-              title={t('RedNote')}
-              link="https://www.xiaohongshu.com/user/profile/67b581b6000000000e01d11f"
-              value="@63844903136"
-            />
-            <ListItem icon={<BrandWechat className="w-full h-full" />} title={t('WeChat')} right={<WechatQRCode />} />
-          </List>
-
-          <List>
-            <ListItem
-              icon={<IconHome className="w-full h-full" />}
-              title={t('Official Site')}
-              link={buildChatboxUrl(`/redirect_app/homepage/${language}`)}
-            />
-            <ListItem
-              icon={<IconPencil className="w-full h-full" />}
-              title={t('Feedback')}
-              link={buildChatboxUrl(`/redirect_app/feedback/${language}`)}
+              link={PROJECT_URL}
+              value="slmpc/hyperchat"
             />
             <ListItem
               icon={<IconFileText className="w-full h-full" />}
               title={t('Changelog')}
               link={`https://chatboxai.app/${language.split('-')[0] || 'en'}/help-center/changelog`}
+              value="Chatbox"
             />
             <ListItem
               icon={<IconMessage2 className="w-full h-full" />}
               title={t('FAQs')}
               link={`https://chatboxai.app/${language.split('-')[0] || 'en'}/help-center`}
+              value="Chatbox"
             />
           </List>
         </Stack>
@@ -134,35 +72,13 @@ function RouteComponent() {
 /**
  * Update section in the About page hero.
  * Desktop: check button, progress bar, error/retry, restart & install.
- * Mobile: "New version available" hint linking to app store.
+ * Mobile and web: link to the project's release page.
  */
-export function UpdateSection({ language, needCheckUpdate }: { language: string; needCheckUpdate: boolean }) {
-  const isDesktop = platform.type === 'desktop'
-
-  if (isDesktop) {
-    return <DesktopUpdateSection />
-  }
-
-  // Mobile and Web both use external link
-  return <MobileUpdateHint language={language} needCheckUpdate={needCheckUpdate} />
-}
-
-function MobileUpdateHint({ language, needCheckUpdate }: { language: string; needCheckUpdate: boolean }) {
+export function UpdateSection() {
   const { t } = useTranslation()
 
-  if (needCheckUpdate) {
-    return (
-      <Button
-        size="xs"
-        variant="light"
-        color="chatbox-brand"
-        radius="lg"
-        className="flex-shrink-0"
-        onClick={() => platform.openLink(buildChatboxUrl(`/redirect_app/check_update/${language}`))}
-      >
-        {t('New version available')}
-      </Button>
-    )
+  if (platform.type === 'desktop') {
+    return <DesktopUpdateSection />
   }
 
   return (
@@ -171,7 +87,7 @@ function MobileUpdateHint({ language, needCheckUpdate }: { language: string; nee
       variant="default"
       radius="lg"
       className="flex-shrink-0"
-      onClick={() => platform.openLink(buildChatboxUrl(`/redirect_app/check_update/${language}`))}
+      onClick={() => platform.openLink(PROJECT_RELEASES_URL)}
     >
       {t('Check Update')}
     </Button>
@@ -256,11 +172,7 @@ function DesktopUpdateSection() {
               {t('Retry')}
             </Button>
           </Flex>
-          <Anchor
-            size="xs"
-            c="chatbox-tertiary"
-            onClick={() => platform.openLink(buildChatboxUrl('/redirect_app/homepage/'))}
-          >
+          <Anchor size="xs" c="chatbox-tertiary" onClick={() => platform.openLink(PROJECT_RELEASES_URL)}>
             {t('Download from official site')}
           </Anchor>
         </Stack>
@@ -282,23 +194,6 @@ function DesktopUpdateSection() {
   }
 }
 
-function WechatQRCode() {
-  const { t } = useTranslation()
-  const [opened, { close, open }] = useDisclosure(false)
-  return (
-    <Popover position="top" withArrow shadow="md" opened={opened}>
-      <Popover.Target>
-        <Text onMouseEnter={open} onMouseLeave={close} c="chatbox-brand" className="cursor-pointer">
-          {t('QR Code')}
-        </Text>
-      </Popover.Target>
-      <Popover.Dropdown style={{ pointerEvents: 'none' }}>
-        <Image src={IMG_WECHAT_QRCODE} alt="wechat qrcode" w={160} h={160} />
-      </Popover.Dropdown>
-    </Popover>
-  )
-}
-
 function List(props: { children: ReactElement[] }) {
   return (
     <Stack gap={0} className="rounded-lg bg-chatbox-background-secondary">
@@ -312,27 +207,15 @@ function List(props: { children: ReactElement[] }) {
   )
 }
 
-function ListItem({
-  icon,
-  title,
-  link,
-  value,
-  right,
-}: {
-  icon: ReactElement
-  title: string
-  link?: string
-  value?: string
-  right?: ReactElement
-}) {
+function ListItem({ icon, title, link, value }: { icon: ReactElement; title: string; link: string; value: string }) {
   return (
     <Flex
       px="md"
       py="sm"
       gap="xs"
       align="center"
-      className={link ? 'cursor-pointer' : ''}
-      onClick={() => link && platform.openLink(link)}
+      className="cursor-pointer"
+      onClick={() => platform.openLink(link)}
       c="chatbox-tertiary"
     >
       <Box w={20} h={20} className="flex-shrink-0 " c="chatbox-primary">
@@ -342,18 +225,10 @@ function ListItem({
         {title}
       </Text>
 
-      {right ? (
-        right
-      ) : (
-        <>
-          {value && (
-            <Text size="md" c="chatbox-tertiary">
-              {value}
-            </Text>
-          )}
-          {link && <ScalableIcon icon={IconChevronRight} size={20} className="!text-inherit" />}
-        </>
-      )}
+      <Text size="md" c="chatbox-tertiary">
+        {value}
+      </Text>
+      <ScalableIcon icon={IconChevronRight} size={20} className="!text-inherit" />
     </Flex>
   )
 }

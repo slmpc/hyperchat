@@ -193,7 +193,7 @@ function describeTool(options: { hasParseLink: boolean; screenshot: boolean }): 
   const screenshot = options.screenshot
     ? '\n- screenshot: capture the visible viewport of url or the current page.'
     : ''
-  return `Chatbox's built-in browser, shown to the user in the conversation's side panel. Runs page JavaScript, reaches local addresses, and has the user's sign-ins.${whenToUse}
+  return `HyperChat's built-in browser, shown to the user in the conversation's side panel. Runs page JavaScript, reaches local addresses, and has the user's sign-ins.${whenToUse}
 Commands:
 - read: return the rendered text of url, or of the current page when url is omitted.
 - snapshot: outline the controls, fields, links and structure of url or the current page, each control with a reference such as e12. Use it before interacting; filter with query, focus on a part with scope.

@@ -17,7 +17,7 @@ export function useBackupNavigationGuard(task: BackupNavigationTask): () => Prom
       pendingConfirmation.current = (async () => {
         const confirmed = await NiceModal.show('confirm', {
           title: t('Interrupt backup?'),
-          message: t('This will interrupt the import or export. Please wait while Chatbox finishes cleanup.'),
+          message: t('This will interrupt the import or export. Please wait while HyperChat finishes cleanup.'),
           confirmText: t('Interrupt and leave'),
           cancelText: t('Stay in settings'),
           danger: true,

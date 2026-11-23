@@ -8,8 +8,8 @@ export function buildChatboxCliToolSet(options: ChatboxCliOptions = {}) {
 
   const chatbox_cli: ToolSet[string] = {
     description:
-      'Run a controlled virtual Chatbox CLI command (not a shell) for account, read-only settings, conversation ' +
-      'history, and background image generation. Usage rules are under Chatbox Virtual CLI.',
+      'Run a controlled HyperChat virtual CLI command (not a shell) for read-only settings, conversation ' +
+      'history, and background image generation. Usage rules are under HyperChat Virtual CLI.',
     inputSchema: validatedToolSchema({
       type: 'object',
       properties: {
@@ -35,7 +35,7 @@ export function buildChatboxCliToolSet(options: ChatboxCliOptions = {}) {
       const existing = executionCache.get(cacheKey)
       if (existing) {
         if (existing.signature !== signature) {
-          return Promise.reject(new Error(`Tool call ${cacheKey} was reused with different Chatbox CLI arguments.`))
+          return Promise.reject(new Error(`Tool call ${cacheKey} was reused with different HyperChat CLI arguments.`))
         }
         return existing.promise
       }

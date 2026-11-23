@@ -18,7 +18,7 @@ The screenshot command captures the visible viewport as an image. Use it when th
     : ''
   return `# Built-in browser
 
-You drive pages open in Chatbox's built-in browser, which the user sees as tabs of the conversation's side panel, with the ${BUILT_IN_BROWSER_TOOL_NAME} tool. The snapshot command shows what you can act on. There is no separate click or type tool: every interaction is a script run with its run command. Files are uploaded with the upload command.
+You drive pages open in HyperChat's built-in browser, which the user sees as tabs of the conversation's side panel, with the ${BUILT_IN_BROWSER_TOOL_NAME} tool. The snapshot command shows what you can act on. There is no separate click or type tool: every interaction is a script run with its run command. Files are uploaded with the upload command.
 
 ## Loop
 1. Take a snapshot of the page. It outlines dialogs, headings, lists, fields and controls; controls and containers carry a reference such as \`e12\`, and carries \`Page\`, a reference to that exact document and URL; pass it as the \`page\` of the run and upload commands. It stops working once the page loads another document, reloads or changes its URL. Use read instead when you need the text of an article.

@@ -83,9 +83,9 @@ it('previews a ZIP, imports it and displays partial results before opening the i
   await screen.findByText(/Found 2 conversations/)
   fireEvent.click(screen.getByRole('button', { name: 'Start import' }))
   await screen.findByText('Imported 1 conversations and 4 messages.')
-  expect(screen.getByText('Restart Chatbox to refresh the imported data.')).toBeTruthy()
+  expect(screen.getByText('Restart HyperChat to refresh the imported data.')).toBeTruthy()
   expect(
-    screen.getByText('Some temporary files could not be removed. Chatbox will try again on the next start.')
+    screen.getByText('Some temporary files could not be removed. HyperChat will try again on the next start.')
   ).toBeTruthy()
   expect(mocks.import).toHaveBeenCalledWith(file, 'Reply did not complete.')
   fireEvent.click(screen.getByRole('button', { name: 'Open imported conversation' }))

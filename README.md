@@ -6,26 +6,25 @@
 <h1 align="center">
 <img src='./doc/statics/icon.png' width='30'>
 <span>
-    Chatbox
-    <span style="font-size:8px; font-weight: normal;">(Community Edition)</span>
+    HyperChat
 </span>
 </h1>
 <p align="center">
-    <em>Your Ultimate AI Copilot on the Desktop. <br />Chatbox is a desktop client for ChatGPT, Claude and other LLMs, available on Windows, Mac, Linux</em>
+    <em>Your Ultimate AI Copilot on the Desktop. <br />HyperChat is a desktop client for ChatGPT, Claude and other LLMs, available on Windows, Mac, Linux</em>
 </p>
 
 <p align="center">
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
+<a href="https://github.com/slmpc/hyperchat/releases" target="_blank">
 <img alt="macOS" src="https://img.shields.io/badge/-macOS-black?style=flat-square&logo=apple&logoColor=white" />
 </a>
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
+<a href="https://github.com/slmpc/hyperchat/releases" target="_blank">
 <img alt="Windows" src="https://img.shields.io/badge/-Windows-blue?style=flat-square&logo=windows&logoColor=white" />
 </a>
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
+<a href="https://github.com/slmpc/hyperchat/releases" target="_blank">
 <img alt="Linux" src="https://img.shields.io/badge/-Linux-yellow?style=flat-square&logo=linux&logoColor=white" />
 </a>
-<a href="https://github.com/chatboxai/chatbox/releases" target="_blank">
-<img alt="Downloads" src="https://img.shields.io/github/downloads/chatboxai/chatbox/total.svg?style=flat" />
+<a href="https://github.com/slmpc/hyperchat/releases" target="_blank">
+<img alt="Downloads" src="https://img.shields.io/github/downloads/slmpc/hyperchat/total.svg?style=flat" />
 </a>
 <a href="#features">
 <img alt="Privacy" src="https://img.shields.io/badge/-Local%20First-green?style=flat-square&logo=shield&logoColor=white" />
@@ -48,80 +47,19 @@
 
 ---
 
-This is the repository for the Chatbox Community Edition, open-sourced under the GPLv3 license.
+HyperChat is a GPLv3-licensed fork of [Chatbox Community Edition](https://github.com/chatboxai/chatbox) for use with your own model provider API keys.
 
 [Chatbox is going open-source Again!](https://github.com/chatboxai/chatbox/issues/2266)
 
-We regularly sync code from the pro repo to this repo, and vice versa.
-
 ## Download
 
-### Desktop
-
-<table style="width: 100%">
-  <tr>
-    <td width="25%" align="center">
-      <b>Windows</b>
-    </td>
-    <td width="25%" align="center" colspan="2">
-      <b>MacOS</b>
-    </td>
-    <td width="25%" align="center">
-      <b>Linux</b>
-    </td>
-  </tr>
-  <tr style="text-align: center">
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-windows'>
-        <img src='./doc/statics/windows.png' style="height:24px; width: 24px" />
-        <br />
-        <b>Setup.exe</b>
-      </a>
-    </td>
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-mac-intel'>
-        <img src='./doc/statics/mac.png' style="height:24px; width: 24px" />
-        <br />
-        <b>Intel</b>
-      </a>
-    </td>
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-mac-aarch'>
-        <img src='./doc/statics/mac.png' style="height:24px; width: 24px" />
-        <br />
-        <b style="white-space: nowrap;">Apple Silicon</b>
-      </a>
-    </td>
-    <td align="center" valign="middle">
-      <a href='https://chatboxai.app/?c=download-linux'>
-        <img src='./doc/statics/linux.png' style="height:24px; width: 24px" />
-        <br />
-        <b>AppImage</b>
-      </a>
-    </td>
-  </tr>
-</table>
-
-### iOS/Android
-
-<a href='https://apps.apple.com/app/chatbox-ai/id6471368056' style='margin-right: 4px'>
-<img src='./doc/statics/app_store.webp' style="height:38px;" />
-</a>
-<a href='https://play.google.com/store/apps/details?id=xyz.chatboxapp.chatbox' style='margin-right: 4px'>
-<img src='./doc/statics/google_play.png' style="height:38px;" />
-</a>
-<a href='https://chatboxai.app/install?download=android_apk' style='margin-right: 4px; display: inline-flex; justify-content: center'>
-<img src='./doc/statics/android.png' style="height:28px; display: inline-block" />
-.APK
-</a>
-
-For more information: [chatboxai.app](https://chatboxai.app/)
+See [HyperChat releases](https://github.com/slmpc/hyperchat/releases) or [build from source](#development).
 
 ## Quick Start
 
 ### For End Users
-1. Download the appropriate installer for your platform from the [releases page](https://github.com/chatboxai/chatbox/releases)
-2. Install and launch Chatbox
+1. Get the appropriate installer from [HyperChat releases](https://github.com/slmpc/hyperchat/releases) or [build from source](#development)
+2. Install and launch HyperChat
 3. Configure your AI provider (OpenAI, Claude, etc.) in settings
 4. Start chatting!
 
@@ -191,7 +129,7 @@ For more information: [chatboxai.app](https://chatboxai.app/)
 
 ### 🌐 Platform Availability
 -   **Cross-Platform Desktop**  
-    :computer: Chatbox is ready for Windows, Mac, and Linux users.
+    :computer: HyperChat is ready for Windows, Mac, and Linux users.
 
 -   **Web Version**  
     :globe_with_meridians: Use the web application on any device with a browser, anywhere.
@@ -222,10 +160,10 @@ For more information: [chatboxai.app](https://chatboxai.app/)
 
 ## How to Contribute
 
-We welcome contributions from the community! Here's how you can help make Chatbox better:
+We welcome contributions from the community! Here's how you can help make HyperChat better:
 
 ### 🐛 Reporting Issues
-- Use [GitHub Issues](https://github.com/chatboxai/chatbox/issues) to report bugs or request features
+- Use [upstream GitHub Issues](https://github.com/chatboxai/chatbox/issues) for bugs that also affect Chatbox Community Edition
 - Before creating a new issue, please search existing issues to avoid duplicates
 - Provide detailed information including steps to reproduce, expected behavior, and screenshots if applicable
 
@@ -237,8 +175,8 @@ We welcome contributions from the community! Here's how you can help make Chatbo
 5. Submit a pull request with a clear description of the changes
 
 ### 🌍 Translations
-Help make Chatbox accessible to more people by contributing translations:
-- Translation files are located in the `src/locales` directory
+Help make HyperChat accessible to more people by contributing translations:
+- Translation files are located in `packages/chatbox-i18n/src/locales`
 - Follow the existing translation format
 - Submit a PR with your translation improvements
 
@@ -249,8 +187,8 @@ Help make Chatbox accessible to more people by contributing translations:
 
 ### 🌟 Other Ways to Contribute
 - Star the repository to show your support
-- Share Chatbox with others
-- Answer questions in [GitHub Discussions](https://github.com/chatboxai/chatbox/discussions)
+- Share HyperChat with others
+- Answer questions in the [upstream GitHub Discussions](https://github.com/chatboxai/chatbox/discussions)
 - Provide feedback and suggestions
 
 **Thank you for contributing! 🙏**
@@ -269,8 +207,8 @@ Before you begin, ensure you have the following installed:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/chatboxai/chatbox.git
-   cd chatbox
+   git clone https://github.com/slmpc/hyperchat.git
+   cd hyperchat
    ```
 
 2. **Install dependencies**
@@ -298,7 +236,7 @@ Before you begin, ensure you have the following installed:
 ### Project Structure
 
 ```
-chatbox/
+hyperchat/
 ├── src/
 │   ├── main/               # Electron main process
 │   ├── renderer/           # React renderer (UI)

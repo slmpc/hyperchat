@@ -1,6 +1,6 @@
 {
   "name": "dev.slmpc.hyperchat",
-  "productName": "dev.slmpc.hyperchat",
+  "productName": "HyperChat",
   "version": "0.0.1",
   "engines": {
     "node": ">=22.13.0 <23.0.0",
@@ -18,8 +18,8 @@
     "build:web": "cross-env CHATBOX_BUILD_PLATFORM=web electron-vite build && pnpm run delete-sourcemaps",
     "delete-sourcemaps": "node scripts/delete-source-maps.mjs",
     "postinstall": "node .erb/scripts/postinstall.cjs",
-    "package": "tsx ./.erb/scripts/clean.js && pnpm run build && cross-env UPDATE_CHANNEL=alpha electron-builder build --publish never",
-    "package:all": "tsx ./.erb/scripts/clean.js && pnpm run build && cross-env UPDATE_CHANNEL=alpha electron-builder build --publish never --win --mac --linux",
+    "package": "tsx ./.erb/scripts/clean.js && pnpm run build && electron-builder build --publish never",
+    "package:all": "tsx ./.erb/scripts/clean.js && pnpm run build && electron-builder build --publish never --win --mac --linux",
     "electron:publish-mac": "pnpm run build && electron-builder build --publish always --mac",
     "electron:publish-linux": "pnpm run build && electron-builder build --publish always --linux",
     "electron:publish-win": "pnpm run build && electron-builder build --publish always --win",
@@ -68,7 +68,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/chatboxai/chatbox.git"
+    "url": "https://github.com/slmpc/hyperchat.git"
   },
   "keywords": [],
   "author": {

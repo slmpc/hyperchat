@@ -15,7 +15,7 @@ export const chatboxCliCommandCatalog: ChatboxCliCommandCatalogEntry[] = [
   {
     domain: 'settings',
     path: ['version'],
-    description: 'Show installed Chatbox client version and platform.',
+    description: 'Show installed HyperChat client version and platform.',
     usage: 'chatbox version',
   },
   {

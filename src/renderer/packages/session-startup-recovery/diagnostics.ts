@@ -84,7 +84,7 @@ export function formatStartupDiagnostic(
   environment: { version: string; platform: string }
 ): string {
   return [
-    'Chatbox session loading diagnostics',
+    'HyperChat session loading diagnostics',
     `Version: ${environment.version}`,
     `Platform: ${environment.platform}`,
     ...(diagnostic
