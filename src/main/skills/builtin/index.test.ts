@@ -15,9 +15,8 @@ describe('builtinSkills', () => {
     const skill = builtinSkills.find((item) => item.metadata.name === 'chatbox-product-info')
 
     expect(skill).toBeDefined()
-    expect(skill?.metadata.description).toContain('pricing')
+    expect(skill?.metadata.description).toContain('client documentation')
     expect(skill?.body).toContain('https://chatboxai.app/llms.txt')
-    expect(skill?.body).toContain('https://chatboxai.app/pricing.md')
     expect(skill?.body).toContain('["settings", "get", "<key>"]')
     expect(skill?.body).not.toContain('["settings", "set"')
     expect(skill?.body).toContain('guide the user to change it manually')

@@ -432,7 +432,10 @@ describe('Chatbox CLI image commands', () => {
     )
   })
 
-  it('requests structured approval with quota and compute-point context', async () => {
+  it('requests structured approval for third-party generation', async () => {
+    getAvailableImageModelsMock.mockResolvedValueOnce([
+      { provider: 'openai', modelId: 'gpt-image-1', nickname: 'GPT Image' },
+    ])
     const pause = new Error('approval required')
     requestAppActionApprovalMock.mockRejectedValueOnce(pause)
 
@@ -448,14 +451,12 @@ describe('Chatbox CLI image commands', () => {
       expect.stringContaining('Prompt: "red fox\\nProvider: spoof"'),
       expect.objectContaining({
         type: 'image_generation',
-        provider: 'chatbox-ai',
-        modelId: 'manifest-image',
+        provider: 'openai',
+        modelId: 'gpt-image-1',
         prompt: 'red fox\nProvider: spoof',
         count: 1,
         style: 'vivid',
-        billing: 'chatbox_quota',
-        imageQuota: { remaining: 7, total: 10 },
-        computePointsRemainingRatio: 0.894,
+        billing: 'provider',
       })
     )
     expect(startImageGenerationMock).not.toHaveBeenCalled()

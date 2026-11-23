@@ -15,6 +15,8 @@ vi.mock('../store-node', () => ({
   },
 }))
 
+vi.mock('../util', () => ({ getLogger: () => ({ debug: vi.fn(), error: vi.fn() }) }))
+
 vi.mock('../adapters/sentry', () => ({
   sentry: {
     withScope: vi.fn(),
@@ -35,7 +37,7 @@ describe('session attachment RAG model providers', () => {
     storeGetMock.mockImplementation((key: string) => (key === 'settings.licenseKey' ? 'license-key' : undefined))
   })
 
-  test('uses manual default embedding model before license default model', async () => {
+  test('uses the configured third-party embedding model', async () => {
     const { getSessionAttachmentEmbeddingProviderWithResolution } = await import('./model-providers')
 
     const resolution = await getSessionAttachmentEmbeddingProviderWithResolution()
@@ -46,4 +48,11 @@ describe('session attachment RAG model providers', () => {
       source: 'default-embedding-model',
     })
   })
+})
+
+test('does not select a hosted embedding model for an old license', async () => {
+  const { getSessionAttachmentEmbeddingModelString } = await import('./model-providers')
+  getSettingsMock.mockReturnValue({})
+  storeGetMock.mockReturnValue('old-license')
+  expect(getSessionAttachmentEmbeddingModelString()).toBeUndefined()
 })
