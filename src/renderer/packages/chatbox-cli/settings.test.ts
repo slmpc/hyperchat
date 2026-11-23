@@ -82,15 +82,13 @@ describe('Chatbox CLI settings allowlist', () => {
 
   it('only exposes read commands and guides manual changes to the correct page', async () => {
     expect(settingsCommands.map((candidate) => candidate.path)).toEqual([
+      ['version'],
       ['settings', 'list'],
       ['settings', 'get'],
     ])
     expect(
       chatboxCliCommandCatalog.filter((candidate) => candidate.domain === 'settings').map((candidate) => candidate.path)
-    ).toEqual([
-      ['settings', 'list'],
-      ['settings', 'get'],
-    ])
+    ).toEqual([['version'], ['settings', 'list'], ['settings', 'get']])
     expect(await command('get').execute(context(['appearance.theme']))).toMatchObject({
       readOnly: true,
       key: 'appearance.theme',

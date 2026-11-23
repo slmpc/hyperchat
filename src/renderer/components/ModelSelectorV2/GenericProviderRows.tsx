@@ -1,38 +1,11 @@
 import type { ProviderModelInfo } from '@shared/types'
-import { ModelProviderEnum } from '@shared/types'
-import clsx from 'clsx'
-import { useTranslation } from 'react-i18next'
-import { GLASS_BAR_CLASS } from '@/lib/glass-surface'
-import { modelMatchesSearch } from './chatboxCatalog'
-import { groupFavorites } from './helpers'
+import { groupFavorites, searchGenericModel } from './helpers'
 import { ModelRow } from './ModelRow'
 import { ProviderRowHeader } from './ProviderRowHeader'
 import type { DetailModel, FavoriteModel, FilteredProvider } from './types'
 
-function ByokSectionDivider({ mobile }: { mobile: boolean }) {
-  const { t, i18n } = useTranslation()
-  const language = i18n.language.toLowerCase()
-  const byokLabel = language === 'zh-hans' || language.startsWith('zh-cn') ? '自带API KEY' : 'BYOK'
-
-  return (
-    <div
-      className={clsx(
-        'sticky top-0 z-20 flex h-9 items-center gap-2 border-0 border-y border-solid border-chatbox-border-primary bg-chatbox-background-secondary px-2.5',
-        GLASS_BAR_CLASS,
-        mobile ? 'mt-1 px-3' : 'mt-1'
-      )}
-    >
-      <span className="min-w-0 flex-1 truncate text-xs font-semibold text-chatbox-tint-secondary">
-        {t('More Providers')}
-      </span>
-      <span className="text-[11px] font-semibold text-chatbox-tint-tertiary">{byokLabel}</span>
-    </div>
-  )
-}
-
 export function GenericProviderRows({
   favoriteOnly,
-  hasChatboxCatalog,
   favoritedModels,
   genericProviders,
   collapsedProviders,
@@ -52,7 +25,6 @@ export function GenericProviderRows({
   onDisabledSelect,
 }: {
   favoriteOnly: boolean
-  hasChatboxCatalog: boolean
   favoritedModels?: FavoriteModel[]
   genericProviders: FilteredProvider[]
   collapsedProviders: Record<string, boolean>
@@ -67,35 +39,31 @@ export function GenericProviderRows({
   onSelect: (providerId: string, modelId: string) => void
   onToggleFavorite: (providerId: string, modelId: string) => void
   onShowMobileDetail: (detail: DetailModel) => void
-  onDesktopDetailOpen: (key: string, detail: DetailModel, pricingLink: string | undefined, anchor: HTMLElement) => void
+  onDesktopDetailOpen: (key: string, detail: DetailModel, anchor: HTMLElement) => void
   onDesktopDetailClose: () => void
   onDisabledSelect: (modelId: string) => void
 }) {
   const source = favoriteOnly
     ? Object.entries(groupFavorites(favoritedModels))
     : genericProviders.map((p) => [p.id, { provider: p, models: [] }] as const)
-  let byokDividerShown = false
   const rows = source.map(([_providerId, group]) => {
     const provider = favoriteOnly ? group.provider : (group.provider as FilteredProvider)
-    if (!provider || (hasChatboxCatalog && provider.id === ModelProviderEnum.ChatboxAI)) return null
+    if (!provider) return null
     const collapsed = collapsedProviders[provider.id] || false
     const models = favoriteOnly
       ? group.models
           .map((favorite) => favorite.model)
           .filter((model): model is ProviderModelInfo => {
             if (!model) return false
-            if (!modelMatchesSearch({ modelId: model.modelId, modelName: model.nickname }, search, provider.name)) {
+            if (!searchGenericModel(provider, model, search)) {
               return false
             }
             return modelFilter ? modelFilter(model, provider.id) : !model.type || model.type === 'chat'
           })
       : (provider as FilteredProvider).models || []
     if (models.length === 0) return null
-    const showByokDivider = !favoriteOnly && provider.id !== ModelProviderEnum.ChatboxAI && !byokDividerShown
-    if (showByokDivider) byokDividerShown = true
     return (
       <div key={provider.id}>
-        {showByokDivider && <ByokSectionDivider mobile={isMobile} />}
         <ProviderRowHeader
           provider={provider}
           modelCount={models.length}
@@ -125,7 +93,7 @@ export function GenericProviderRows({
                 onSelect={() => onSelect(provider.id, model.modelId)}
                 onFavorite={() => onToggleFavorite(provider.id, model.modelId)}
                 onShowDetail={() => onShowMobileDetail(detail)}
-                onDesktopDetailOpen={(anchor) => onDesktopDetailOpen(detailKey, detail, undefined, anchor)}
+                onDesktopDetailOpen={(anchor) => onDesktopDetailOpen(detailKey, detail, anchor)}
                 onDesktopDetailClose={onDesktopDetailClose}
                 onDisabledSelect={() => onDisabledSelect(detail.modelId)}
               />

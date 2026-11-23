@@ -41,10 +41,6 @@ export const capacitorWorkMode = new LocalWorkMode(
   currentBlobStorage,
   () => ({
     getSettings: () => settingsStore.getState().getSettings(),
-    refreshAccount: async () => {
-      const { refreshChatboxAccount } = await import('@/packages/chatbox-cli/account')
-      return Boolean((await refreshChatboxAccount()).refreshed)
-    },
     getVersion: async () => ({ installedVersion: await platform.getVersion(), platform: await platform.getPlatform() }),
     listChats: (cursor, limit, archived) =>
       archived

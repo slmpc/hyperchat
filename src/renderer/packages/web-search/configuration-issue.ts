@@ -7,7 +7,6 @@ export type WebSearchReadinessSettings = NativeWebSearchCredentialSources & {
 }
 
 export type WebSearchConfigurationIssue =
-  | 'chatbox-ai-sign-in'
   | 'deepseek-api-key'
   | 'tavily-api-key'
   | 'bocha-api-key'
@@ -19,8 +18,6 @@ export function getWebSearchConfigurationIssue(
   provider: WebSearchProviderValue = settings.extension.webSearch.provider
 ): WebSearchConfigurationIssue | null {
   switch (provider) {
-    case 'build-in':
-      return settings.licenseKey ? null : 'chatbox-ai-sign-in'
     case 'searxng':
       return settings.extension.webSearch.searxngBaseUrl?.trim() ? null : 'searxng-instance'
     case 'bing':

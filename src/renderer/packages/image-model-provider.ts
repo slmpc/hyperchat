@@ -1,14 +1,14 @@
 import type { ImageModelOption } from '@chatbox/core/application/image-generation'
 import { fetchOpenRouterImageModels } from '@shared/providers/definitions/models/openrouter-image-api'
+import { isGeminiImageModel } from '@shared/providers/definitions/image-models'
 import { ModelProviderEnum } from '@shared/types'
 
 export type { ImageModelOption } from '@chatbox/core/application/image-generation'
 
 import { createModelDependencies } from '@/adapters'
-import { getModelManifest } from '@/packages/remote'
+import { getProviderDefinition } from '@shared/providers'
 export interface ImageModelCatalogOptions {
   apiKey?: string
-  licenseKey?: string
   language?: string
 }
 
@@ -27,18 +27,21 @@ export async function loadProviderImageModels(
         capabilities: model.capabilities,
       }))
     } catch {
-      // Fall through to the Chatbox manifest when OpenRouter is unreachable.
+      // Use the built-in catalog when OpenRouter is unreachable.
     }
   }
 
-  const manifest = await getModelManifest({
-    aiProvider: provider,
-    language: options.language,
-    licenseKey: provider === ModelProviderEnum.ChatboxAI ? options.licenseKey : undefined,
-  })
-  return manifest.imageModels.map((model) => ({
-    modelId: model.modelId,
-    displayName: model.modelName || model.modelId,
-    ...(model.description ? { description: model.description } : {}),
-  }))
+  if (provider === ModelProviderEnum.OpenAI) {
+    return [
+      { modelId: 'gpt-image-1.5', displayName: 'GPT Image 1.5' },
+      { modelId: 'gpt-image-1', displayName: 'GPT Image 1' },
+      { modelId: 'gpt-image-1-mini', displayName: 'GPT Image 1 Mini' },
+    ]
+  }
+
+  return (getProviderDefinition(provider)?.defaultSettings?.models ?? [])
+    .filter(
+      (model) => model.type === 'image' || (provider === ModelProviderEnum.Gemini && isGeminiImageModel(model.modelId))
+    )
+    .map((model) => ({ modelId: model.modelId, displayName: model.nickname || model.modelId }))
 }

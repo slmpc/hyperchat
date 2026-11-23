@@ -1,6 +1,6 @@
+import type { ProviderBaseInfo } from '@shared/types'
 import { Button, Flex, Image, Indicator, ScrollArea, Stack, Text } from '@mantine/core'
 import { AutomationAdjacentAttr, TestId } from '@shared/automation/testids'
-import { ModelProviderEnum, type ProviderBaseInfo } from '@shared/types'
 import { IconChevronRight, IconPlus } from '@tabler/icons-react'
 import { Link, useRouterState } from '@tanstack/react-router'
 import clsx from 'clsx'
@@ -33,15 +33,12 @@ export function ProviderList({ providers, onAddProvider }: ProviderListProps) {
 
   const activatedProviderIds = useMemo(() => new Set(availableProviders.map((p) => p.id)), [availableProviders])
 
-  // Sort providers: ChatboxAI first, then activated/custom providers, then featured presets
+  // Sort providers: Activated and custom providers first, then featured presets
   const sortedProviders = useMemo(() => {
-    const chatboxAI = providers.filter((p) => p.id === ModelProviderEnum.ChatboxAI)
     const activated: ProviderBaseInfo[] = []
     const featured: ProviderBaseInfo[] = []
 
     for (const p of providers) {
-      if (p.id === ModelProviderEnum.ChatboxAI) continue
-
       if (activatedProviderIds.has(p.id) || p.isCustom) {
         activated.push(p)
       } else if (FEATURED_PROVIDER_IDS.includes(p.id)) {
@@ -49,7 +46,7 @@ export function ProviderList({ providers, onAddProvider }: ProviderListProps) {
       }
     }
 
-    return [...chatboxAI, ...activated, ...featured]
+    return [...activated, ...featured]
   }, [providers, activatedProviderIds])
 
   return (
@@ -67,7 +64,7 @@ export function ProviderList({ providers, onAddProvider }: ProviderListProps) {
           {sortedProviders.map((provider) => (
             <Link
               key={provider.id}
-              to={provider.id === 'chatbox-ai' ? `/settings/provider/chatbox-ai` : `/settings/provider/$providerId`}
+              to={'/settings/provider/$providerId'}
               params={{ providerId: provider.id }}
               className={'block no-underline'}
               data-testid={TestId.settings.providerItem}

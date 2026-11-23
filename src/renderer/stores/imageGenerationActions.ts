@@ -11,11 +11,8 @@ import type { ImageGeneration } from '@shared/types'
 import { createModelDependencies } from '@/adapters'
 import { currentBlobStorage } from '@/adapters/CurrentBlobStorage'
 import { normalizePlausibleModel, normalizePlausibleProvider } from '@/analytics/plausible'
-import i18n from '@/i18n'
 import { getLogger } from '@/lib/utils'
 import { getImageModelCapabilities } from '@/packages/image-model-catalog'
-import { authorizeImagePoints, refreshImageLicense } from '@/packages/image-points-billing'
-import { pollImageTask, submitImageGeneration } from '@/packages/remote'
 import platform from '@/platform'
 import { StorageKeyGenerator } from '@/storage/StoreStorage'
 import { trackEvent } from '@/utils/track'
@@ -29,27 +26,19 @@ const log = getLogger('image-generation-actions')
 let service: ImageGenerationService | undefined
 let queries: ImageGenerationQueryBridge | undefined
 
-function getLicenseKey(): string {
-  const licenseKey = settingsStore.getState().licenseKey
-  if (!licenseKey) throw new Error('License key is required for image generation')
-  return licenseKey
-}
-
 /** The renderer facade and CLI share the same application-owned image jobs. */
 export function getImageGenerationService(): ImageGenerationService {
   if (!service) {
-    let authorizedLicense: string | undefined
     const instance = new ImageGenerationService({
       storage: platform.getImageGenerationStorage(),
       blobStorage: currentBlobStorage,
       asyncClient: {
-        submit: (params) => {
-          if (!authorizedLicense || authorizedLicense !== getLicenseKey()) {
-            throw new Error(i18n.t<string>('The active license changed. Please try again.'))
-          }
-          return submitImageGeneration(params, authorizedLicense)
+        submit: async () => {
+          throw new Error('This image provider is unavailable')
         },
-        poll: (taskId, signal) => pollImageTask(taskId, getLicenseKey(), signal),
+        poll: async () => {
+          throw new Error('This image provider is unavailable')
+        },
       },
       createModel: async (model) =>
         getModel(
@@ -60,7 +49,6 @@ export function getImageGenerationService(): ImageGenerationService {
         ),
       resolveReferenceImage: async (key) => (await createModelDependencies()).storage.getImage(key),
       validateRequest: async (params, signal) => {
-        if (params.model.provider === 'chatbox-ai') getLicenseKey()
         const capabilities = await getImageModelCapabilities(
           params.model,
           settingsStore.getState().getSettings(),
@@ -72,10 +60,6 @@ export function getImageGenerationService(): ImageGenerationService {
           aspectRatio: params.aspectRatio,
           referenceCount: params.referenceImages.length,
         })
-      },
-      authorizeRequest: async (params, signal, interactive) => {
-        authorizedLicense = params.model.provider === 'chatbox-ai' ? getLicenseKey() : undefined
-        await authorizeImagePoints(params, signal, interactive)
       },
       createImageKey: (recordId) => StorageKeyGenerator.picture(`image-gen:${recordId}`),
       onGenerate: (params, path) =>
@@ -89,12 +73,8 @@ export function getImageGenerationService(): ImageGenerationService {
       onError: (error) => log.error('Image generation failed:', error),
     })
     instance.subscribe(() => {
-      const wasGenerating = imageGenerationStore.getState().currentGeneratingId !== null
       const currentId = instance.getSnapshot().currentGeneratingId
       imageGenerationStore.getState().setCurrentGeneratingId(currentId)
-      if (wasGenerating && currentId === null && authorizedLicense) {
-        void refreshImageLicense(authorizedLicense).catch(() => undefined)
-      }
     })
     instance.subscribeRecords((event) => {
       if (event.type === 'deleted') {

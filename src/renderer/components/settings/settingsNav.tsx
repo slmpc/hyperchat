@@ -16,7 +16,6 @@ import {
   IconPalette,
   type IconProps,
   IconRobotFace,
-  IconSparkles,
   IconStack2,
   IconTool,
   IconWand,
@@ -31,7 +30,6 @@ import { useSettingsStore } from '@/stores/settingsStore'
 import { featureFlags } from '@/utils/feature-flags'
 
 export type SettingsPageKey =
-  | 'chatbox-ai'
   | 'provider'
   | 'default-models'
   | 'web-search'
@@ -84,7 +82,6 @@ export function getSettingsNavGroups(): SettingsNavGroup[] {
   ]
 
   return [
-    { title: 'Account', items: [{ key: 'chatbox-ai', label: 'Chatbox AI', noTranslate: true, icon: IconSparkles }] },
     {
       title: 'Models',
       items: [

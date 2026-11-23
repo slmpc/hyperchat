@@ -37,7 +37,7 @@ const {
   },
   getSettingsMock: vi.fn(),
   isProMock: vi.fn(),
-  webSearchProvider: { current: 'build-in' },
+  webSearchProvider: { current: 'tavily' },
   buildCodeExecutionToolsMock: vi.fn(),
   buildRunCommandToolMock: vi.fn(),
   getSessionAttachmentRagToolSetMock: vi.fn(),
@@ -287,7 +287,7 @@ beforeEach(async () => {
   settingsState.licensePlanName = undefined
   settingsState.licenseActivationMethod = undefined
   settingsState.hasExpiredLicense = false
-  webSearchProvider.current = 'build-in'
+  webSearchProvider.current = 'tavily'
   platformName.current = 'darwin'
   isProMock.mockReturnValue(true)
   buildCodeExecutionToolsMock.mockReturnValue({
@@ -1491,37 +1491,6 @@ describe('chatbox_cli tool', () => {
     expect(disabled.tools.chatbox_cli).toBeUndefined()
   })
 
-  test('returns masked license status for CLI-style command', async () => {
-    const model = createMockModel()
-    const onAgentModeActivated = vi.fn()
-    settingsState.licenseKey = 'license-key-secret-1234'
-    settingsState.licenseActivationMethod = 'manual'
-    settingsState.licensePlanName = 'Chatbox AI Pro'
-
-    getSettingsMock.mockReturnValue({
-      skills: { enabledSkillNames: ['chatbox-product-info'] },
-    })
-
-    const result = await buildToolsForSession(model, {
-      webBrowsing: false,
-      messages: [],
-      agentMode: 'on',
-      onAgentModeActivated,
-    })
-    if (!result.tools.chatbox_cli.execute) throw new Error('chatbox_cli execute missing')
-
-    const executeResult = await result.tools.chatbox_cli.execute({ command: 'chatbox account status' }, {} as never)
-
-    expect(onAgentModeActivated).toHaveBeenCalledTimes(1)
-    expect(executeResult).toMatchObject({
-      licenseConfigured: true,
-      licenseKey: 'configured (...1234)',
-      activationMethod: 'manual',
-      plan: { name: 'Chatbox AI Pro' },
-    })
-    expect(JSON.stringify(executeResult)).not.toContain('license-key-secret-1234')
-  })
-
   test('advertises the structured command hierarchy through capabilities', async () => {
     const model = createMockModel()
     getSettingsMock.mockReturnValue({
@@ -1540,7 +1509,7 @@ describe('chatbox_cli tool', () => {
     expect(executeResult).toMatchObject({
       ok: true,
       command: 'capabilities',
-      domains: ['account', 'settings', 'chats', 'image'],
+      domains: ['settings', 'chats', 'image'],
     })
   })
 })

@@ -5,7 +5,6 @@ import {
   type CopilotDetail,
   createMessage,
   type ImageSource,
-  ModelProviderEnum,
   type Message,
   type SessionHeader,
   type SessionSettings,
@@ -20,7 +19,6 @@ import { z } from 'zod'
 import { trackJkClickEvent } from '@/analytics/jk'
 import { JK_EVENTS, JK_PAGE_NAMES } from '@/analytics/jk-events'
 import { rendererApplication } from '@/app/renderer-application'
-import { ChatboxWelcomeCard } from '@/components/common/ChatboxWelcomeCard'
 import { ScalableIcon } from '@/components/common/ScalableIcon'
 import { ImageInStorage } from '@/components/Image'
 import InputBox, { type InputBoxPayload } from '@/components/InputBox/InputBox'
@@ -31,11 +29,8 @@ import { getForceShowNewUserScenarioCardsFlag } from '@/dev/devToolsFlags'
 import { useMyCopilots, useRemoteCopilotsByCursor } from '@/hooks/useCopilots'
 import { useProviders } from '@/hooks/useProviders'
 import { useIsSmallScreen } from '@/hooks/useScreenChange'
-import useVersion from '@/hooks/useVersion'
 import * as remote from '@/packages/remote'
 import { router } from '@/router'
-import { useAuthInfoStore } from '@/stores/authInfoStore'
-import { resolveChatboxLicenseDefaultModel } from '@/stores/defaultChatModel'
 import { getHasCompletedFirstSuccessfulChat } from '@/stores/firstSuccessfulChat'
 import { lastUsedModelStore } from '@/stores/lastUsedModelStore'
 import { getSessionAgentModeEntry } from '@/stores/session/agent-mode'
@@ -44,7 +39,6 @@ import { generate } from '@/stores/session/generation'
 import { submitNewUserMessage } from '@/stores/session/messages'
 import { settingsStore, useSettingsStore } from '@/stores/settingsStore'
 import { useUIStore } from '@/stores/uiStore'
-import { getHomeWelcomeCardMode } from '@/utils/homeWelcomeCard'
 import { NewUserScenarioGrid } from './-new-user-scenarios/NewUserScenarioGrid'
 import { type NewUserScenario, newUserScenarios, resolveNewUserScenarioContent } from './-new-user-scenarios/scenarios'
 import { applyCopilotToNewSession, clearCopilotFromNewSession, getNewChatAssistantFields } from './-newChatSession'
@@ -54,11 +48,6 @@ const scenarioAgentModeOff = {
   locked: false,
   lockReason: null,
 } satisfies AgentModeEntry
-
-const firstChatScenarioDefaultModel = {
-  provider: ModelProviderEnum.ChatboxAI,
-  modelId: 'chatboxai-3.5',
-} satisfies Pick<SessionSettings, 'provider' | 'modelId'>
 
 export const Route = createFileRoute('/')({
   component: Index,
@@ -94,7 +83,7 @@ function Index() {
     const settings = settingsStore.getState().getSettings()
     const model = settings.defaultChatModel
       ? { provider: settings.defaultChatModel.provider, modelId: settings.defaultChatModel.model }
-      : lastUsedModelStore.getState().chat || resolveChatboxLicenseDefaultModel(settings)
+      : lastUsedModelStore.getState().chat
     return { id: 'new', name: 'Untitled', type: 'chat', threadName: '', settings: { ...model } }
   })
   const [systemPrompt, setSystemPrompt] = useState(() => settingsStore.getState().defaultPrompt || '')
@@ -102,29 +91,9 @@ function Index() {
   const [forceShowNewUserScenarioCards, setForceShowNewUserScenarioCards] = useState(
     getForceShowNewUserScenarioCardsFlag
   )
-  const hasUserSelectedModelRef = useRef(false)
 
   const { providers } = useProviders()
   const defaultChatModel = useSettingsStore((s) => s.defaultChatModel)
-  const hasLicense = useSettingsStore((s) => Boolean(s.licenseKey))
-  const licenseKey = useSettingsStore((s) => s.licenseKey)
-  const licenseDetail = useSettingsStore((s) => s.licenseDetail)
-  const licensePlanName = useSettingsStore((s) => s.licensePlanName)
-  const hasExpiredLicense = useSettingsStore((s) => s.hasExpiredLicense)
-  const isLoggedIn = useAuthInfoStore((s) => Boolean(s.accessToken && s.refreshToken))
-  const { isExceeded, isExceededResolved } = useVersion()
-  const welcomeCardMode = useMemo(
-    () =>
-      getHomeWelcomeCardMode({
-        providerCount: providers.length,
-        isLoggedIn,
-        hasLicense,
-        hasExpiredLicense,
-        hideForStoreReview: isExceeded || !isExceededResolved,
-      }),
-    [providers.length, isLoggedIn, hasLicense, hasExpiredLicense, isExceeded, isExceededResolved]
-  )
-
   const selectedModel = useMemo(() => {
     if (session.settings?.provider && session.settings?.modelId) {
       return {
@@ -159,26 +128,6 @@ function Index() {
 
   useEffect(() => {
     setSession((old) => {
-      if (
-        hasCompletedFirstSuccessfulChat === false &&
-        isLoggedIn &&
-        !session.copilotId &&
-        !hasUserSelectedModelRef.current
-      ) {
-        if (
-          old.settings?.provider === firstChatScenarioDefaultModel.provider &&
-          old.settings?.modelId === firstChatScenarioDefaultModel.modelId
-        ) {
-          return old
-        }
-        return {
-          ...old,
-          settings: {
-            ...(old.settings || {}),
-            ...firstChatScenarioDefaultModel,
-          },
-        }
-      }
       if (old.settings?.provider && old.settings?.modelId) {
         return old
       }
@@ -187,12 +136,7 @@ function Index() {
             provider: defaultChatModel.provider,
             modelId: defaultChatModel.model,
           }
-        : resolveChatboxLicenseDefaultModel({
-            licenseKey,
-            hasExpiredLicense,
-            licenseDetail,
-            licensePlanName,
-          })
+        : lastUsedModelStore.getState().chat
       if (!defaultModel) {
         return old
       }
@@ -204,16 +148,7 @@ function Index() {
         },
       }
     })
-  }, [
-    defaultChatModel,
-    hasCompletedFirstSuccessfulChat,
-    hasExpiredLicense,
-    isLoggedIn,
-    licenseDetail,
-    licenseKey,
-    licensePlanName,
-    session.copilotId,
-  ])
+  }, [defaultChatModel])
 
   const { copilots: myCopilots } = useMyCopilots()
   const { copilots: remoteCopilots } = useRemoteCopilotsByCursor({ limit: 10 })
@@ -383,7 +318,7 @@ function Index() {
       trackJkClickEvent(JK_EVENTS.LEAD_CHAT_CARD_CLICK, {
         pageName: JK_PAGE_NAMES.CHAT_PAGE,
         content: t(scenario.titleKey),
-        contentType: session.settings?.modelId ?? firstChatScenarioDefaultModel.modelId,
+        contentType: session.settings?.modelId,
       })
       const assistantMessage = createMessage('assistant', '')
       assistantMessage.generating = true
@@ -404,7 +339,6 @@ function Index() {
   )
 
   const onSelectModel = useCallback((p: string, m: string) => {
-    hasUserSelectedModelRef.current = true
     setSession((old) => ({
       ...old,
       settings: {
@@ -428,16 +362,15 @@ function Index() {
   }, [session, systemPrompt])
 
   const showNewUserScenarios =
-    (forceShowNewUserScenarioCards || (hasCompletedFirstSuccessfulChat === false && isLoggedIn)) && !session.copilotId
+    (forceShowNewUserScenarioCards || (hasCompletedFirstSuccessfulChat === false && providers.length > 0)) &&
+    !session.copilotId
 
   return (
     <Page title="">
       <div
         className={clsx('p-0 flex flex-col h-full min-h-0 overflow-hidden', contentColumnContainerClassName(widthFull))}
       >
-        <div
-          className={clsx('min-h-0 flex-1 overflow-y-auto', welcomeCardMode !== 'none' ? 'pb-36 sm:pb-32' : 'pb-md')}
-        >
+        <div className={'min-h-0 flex-1 overflow-y-auto pb-md'}>
           {showNewUserScenarios ? (
             <Stack justify="center" className="min-h-full" py="xl">
               <NewUserScenarioGrid scenarios={newUserScenarios} onSelect={handleScenarioSelect} />
@@ -494,18 +427,6 @@ function Index() {
           )}
 
           <Box className="relative">
-            {welcomeCardMode !== 'none' && (
-              <Box className="pointer-events-none absolute left-0 right-0 z-10" style={{ bottom: '100%' }} mb="sm">
-                <Box className={paddedContentColumnClassName(widthFull)}>
-                  <ChatboxWelcomeCard
-                    mode={welcomeCardMode}
-                    pageName={JK_PAGE_NAMES.CHAT_PAGE}
-                    className="pointer-events-auto w-full"
-                  />
-                </Box>
-              </Box>
-            )}
-
             <InputBox
               sessionType="chat"
               sessionId="new"

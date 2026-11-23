@@ -1,7 +1,6 @@
 import type { ComboboxProps } from '@mantine/core'
 import type { ProviderModelInfo } from '@shared/types'
 import type { PropsWithChildren } from 'react'
-import type { ChatboxAIModelList } from '@/packages/remote'
 
 export type FilteredProvider = {
   id: string
@@ -30,8 +29,6 @@ export type ModelSelectorV2Props = PropsWithChildren<
   } & ComboboxProps
 >
 
-export type ChatboxAIModel = ChatboxAIModelList['models'][string]
-
 export type DetailModel = {
   providerId: string
   providerName: string
@@ -39,19 +36,14 @@ export type DetailModel = {
   name: string
   type?: ProviderModelInfo['type']
   capabilities?: ProviderModelInfo['capabilities']
-  costLevel?: string
   description?: string
   pointsPerImage?: number
-  pricing?: ChatboxAIModel['pricing']
-  locked?: boolean
   disabledReason?: string
 }
 
 export type DesktopDetailState = {
   key: string
   model: DetailModel
-  pricingLink?: string
-  upgradeLink?: string
   left: number
   top: number
 }

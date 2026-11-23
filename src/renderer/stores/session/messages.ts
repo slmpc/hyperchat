@@ -31,7 +31,6 @@ import { reportError } from '@/utils/sentry'
 import { SESSION_ATTACHMENT_RAG_LOG_PREFIX } from '../../../shared/session-attachment-rag/logging'
 import { markSessionReplyFailed } from '../sessionActivityStore'
 import { ensureMessageFileSessionAttachment } from '../sessionAttachmentRagIndexing'
-import * as settingActions from '../settingActions'
 import { settingsStore } from '../settingsStore'
 import { guardSessionAction } from './action-guard'
 import { getSessionHeader, getSessionSettings, getSessionTokenModel } from './session-settings'
@@ -368,8 +367,6 @@ export async function submitNewUserMessageUnlocked(
   }
 
   const globalSettings = settingsStore.getState().getSettings()
-  const isPro = settingActions.isPro()
-  const remoteConfig = await settingActions.getRemoteConfig()
 
   // 根据需要，插入空白的回复消息
   let newAssistantMsg = createMessage('assistant', '')
@@ -379,7 +376,7 @@ export async function submitNewUserMessageUnlocked(
     }
     newAssistantMsg.status.push({
       type: 'sending_file',
-      mode: isPro ? 'advanced' : 'local',
+      mode: 'local',
     })
   }
   if (newUserMsg.links && newUserMsg.links.length > 0) {
@@ -388,7 +385,7 @@ export async function submitNewUserMessageUnlocked(
     }
     newAssistantMsg.status.push({
       type: 'loading_webpage',
-      mode: isPro ? 'advanced' : 'local',
+      mode: 'local',
     })
   }
   if (needGenerating) {
@@ -409,11 +406,7 @@ export async function submitNewUserMessageUnlocked(
     // 桌面版&手机端总是支持联网问答，不再需要检查模型是否支持
     const model = await createModel(settings)
     if (webBrowsing && platform.type === 'web' && !model.isSupportToolUse()) {
-      if (remoteConfig.setting_chatboxai_first) {
-        throw ChatboxAIAPIError.fromCodeName('model_not_support_web_browsing', 'model_not_support_web_browsing')
-      } else {
-        throw ChatboxAIAPIError.fromCodeName('model_not_support_web_browsing_2', 'model_not_support_web_browsing_2')
-      }
+      throw ChatboxAIAPIError.fromCodeName('model_not_support_web_browsing_2', 'model_not_support_web_browsing_2')
     }
 
     // Files and links are now preprocessed in InputBox with storage keys, so no need to process them here

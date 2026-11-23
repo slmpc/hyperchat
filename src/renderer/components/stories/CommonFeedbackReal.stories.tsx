@@ -4,11 +4,8 @@ import { MessageRoleEnum } from '@shared/types'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { IconAlertTriangle, IconCheck, IconInfoCircle, IconRobot } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
-import { settingsStore } from '@/stores/settingsStore'
 import { uiStore } from '@/stores/uiStore'
 import { AssistantAvatar, SystemAvatar, UserAvatar } from '../common/Avatar'
-import { ChatboxAIErrorMessage } from '../common/ChatboxAIErrorMessage'
-import { ChatboxWelcomeCard } from '../common/ChatboxWelcomeCard'
 import { CompressionModal } from '../common/CompressionModal'
 import Divider from '../common/Divider'
 import { ErrorBoundary } from '../common/ErrorBoundary'
@@ -58,67 +55,6 @@ export const AvatarStates: StoryObj = {
         <AvatarSample label="System">
           <SystemAvatar size="lg" />
         </AvatarSample>
-      </Group>
-    </Stack>
-  ),
-}
-
-export const ChatboxAIErrorMessageStates: StoryObj = {
-  name: 'Chatbox AI error message quota license file and web browsing states',
-  parameters: {
-    uiInventoryTargets: ['src/renderer/components/common/ChatboxAIErrorMessage'],
-  },
-  render: () => (
-    <Stack gap="lg">
-      <SurfaceLabel
-        title="ChatboxAIErrorMessage"
-        description="Actual localized Chatbox AI service error copy with settings, plan, homepage, and parser action links."
-      />
-      <SeedLicensePlan name="Chatbox AI Free" />
-      <Paper withBorder radius="md" p="md">
-        <Stack gap="sm">
-          <Text size="sm">
-            <ChatboxAIErrorMessage errorCode={10004} model="Chatbox AI 4" />
-          </Text>
-          <Divider />
-          <Text size="sm">
-            <ChatboxAIErrorMessage errorCode={20001} model="GPT-4.1" trackingSource="storybook_upgrade" />
-          </Text>
-          <Divider />
-          <Text size="sm">
-            <ChatboxAIErrorMessage errorCode={20011} model="Local API" />
-          </Text>
-          <Divider />
-          <Text size="sm">
-            <ChatboxAIErrorMessage errorCode={20021} model="Custom Model" />
-          </Text>
-        </Stack>
-      </Paper>
-    </Stack>
-  ),
-}
-
-export const ChatboxWelcomeCardStates: StoryObj = {
-  name: 'Chatbox welcome card login no-license and expired states',
-  parameters: {
-    uiInventoryTargets: ['src/renderer/components/common/ChatboxWelcomeCard'],
-  },
-  render: () => (
-    <Stack gap="lg">
-      <SurfaceLabel
-        title="ChatboxWelcomeCard"
-        description="Actual account/license welcome card variants shown on empty chat and image creator surfaces."
-      />
-      <Group align="stretch">
-        <Box w={260}>
-          <ChatboxWelcomeCard mode="login" pageName="storybook" />
-        </Box>
-        <Box w={260}>
-          <ChatboxWelcomeCard mode="no-license" pageName="storybook" />
-        </Box>
-        <Box w={260}>
-          <ChatboxWelcomeCard mode="expired-license" pageName="storybook" />
-        </Box>
       </Group>
     </Stack>
   ),
@@ -246,16 +182,6 @@ function AvatarSample({ label, children }: { label: string; children: React.Reac
       </Stack>
     </Paper>
   )
-}
-
-function SeedLicensePlan({ name }: { name: string }) {
-  useEffect(() => {
-    settingsStore.setState({
-      licensePlanName: name,
-    })
-  }, [name])
-
-  return null
 }
 
 function SeedToasts() {

@@ -14,9 +14,6 @@ import {
 import { MAX_WORKSPACE_FILE_BYTES } from '@shared/mobile-work/workspace-path'
 import i18n from '@/i18n'
 import { parsePdfFileLocally } from '@/packages/pdf-parser'
-import { uploadAndParseUserFile } from '@/packages/remote'
-import * as settingActions from '@/stores/settingActions'
-import { confirmWorkAction } from './confirmation'
 import { capacitorExecution } from './execution-service'
 
 function boundText(text: string): ParsedLocalDocument {
@@ -83,27 +80,6 @@ export const capacitorDocumentParser: WorkDocumentParser = {
       }
     }
 
-    const licenseKey = settingActions.getLicenseKey()
-    if (!licenseKey)
-      throw new Error(String(i18n.t('Sign in to Chatbox AI or activate a license to use cloud document parsing.')))
-    const allowed = await confirmWorkAction(
-      {
-        title: i18n.t('Cloud document parsing'),
-        message: i18n.t(
-          'Upload the original file "{{filename}}" to Chatbox AI for document parsing? This consumes compute points. The extracted text will be available to the model in this conversation.',
-          { filename: file.name }
-        ),
-        confirmText: String(i18n.t('Upload and parse')),
-        cancelText: String(i18n.t('Cancel')),
-      },
-      signal
-    )
-    throwIfWorkAborted(signal)
-    if (!allowed)
-      throw new Error(String(i18n.t('Cloud document parsing was declined. The file has not been uploaded.')))
-    const text = await uploadAndParseUserFile(licenseKey, file, signal)
-    throwIfWorkAborted(signal)
-    if (!text.trim()) throw new Error(String(i18n.t('No readable text was found in this file.')))
-    return boundText(text)
+    throw new Error(String(i18n.t('No readable text was found in this file.')))
   },
 }

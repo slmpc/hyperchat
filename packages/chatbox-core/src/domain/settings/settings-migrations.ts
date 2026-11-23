@@ -65,7 +65,7 @@ export function migrateSettings(persisted: unknown, version: number, host: Setti
   if (shouldRunMigration(4)) {
     const extension = settings.extension as { documentParser?: { type?: string } } | undefined
     if (!host.isDesktopLike && extension?.documentParser?.type === 'none') {
-      extension.documentParser.type = 'chatbox-ai'
+      extension.documentParser.type = 'local'
     }
   }
 

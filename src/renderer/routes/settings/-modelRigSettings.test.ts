@@ -18,7 +18,7 @@ function settings(overrides: Partial<Settings> = {}): Settings {
   return {
     extension: {
       webSearch: {
-        provider: 'build-in',
+        provider: 'bing',
       },
     },
     ...overrides,
@@ -26,17 +26,8 @@ function settings(overrides: Partial<Settings> = {}): Settings {
 }
 
 describe('model rig slot settings', () => {
-  test('treats an unset chat model as a Chatbox preset', () => {
+  test('treats an unset chat model as the default preset', () => {
     expect(isSlotPresetOn('llm', settings())).toBe(true)
-  })
-
-  test('treats a Chatbox AI chat model as a Chatbox preset', () => {
-    expect(
-      isSlotPresetOn(
-        'llm',
-        settings({ defaultChatModel: { provider: ModelProviderEnum.ChatboxAI, model: 'chatboxai-4' } })
-      )
-    ).toBe(true)
   })
 
   test('treats a third-party chat model as a custom part', () => {
@@ -80,23 +71,8 @@ describe('model rig slot settings', () => {
     expect(getSlotModelRef('fast', saved)).toBeUndefined()
   })
 
-  test('parser and search presets follow the Chatbox-built-in values', () => {
-    expect(isSlotPresetOn('parser', settings())).toBe(false)
-    expect(isSlotPresetOn('parser', settings(), undefined, 'chatbox-ai')).toBe(true)
-    expect(
-      isSlotPresetOn(
-        'parser',
-        settings({ extension: { webSearch: { provider: 'bing' }, documentParser: { type: 'chatbox-ai' } } })
-      )
-    ).toBe(true)
-    expect(
-      isSlotPresetOn(
-        'parser',
-        settings({ extension: { webSearch: { provider: 'bing' }, documentParser: { type: 'local' } } }),
-        undefined,
-        'chatbox-ai'
-      )
-    ).toBe(false)
+  test('defaults to local parsing and Bing search', () => {
+    expect(isSlotPresetOn('parser', settings())).toBe(true)
     expect(isSlotPresetOn('search', settings())).toBe(true)
     expect(isSlotPresetOn('search', settings({ extension: { webSearch: { provider: 'tavily' } } }))).toBe(false)
   })
@@ -104,18 +80,17 @@ describe('model rig slot settings', () => {
   test('unset parser type follows the platform default', () => {
     expect(effectiveParserType(settings(), 'chatbox-ai')).toBe('chatbox-ai')
     expect(effectiveParserType(settings(), 'local')).toBe('local')
-    expect(customParserTypes({ isDesktopLike: false, isMobile: false })).toEqual(['deepseek'])
+    expect(customParserTypes({ isDesktopLike: false, isMobile: false })).toEqual(['local', 'deepseek'])
     expect(customParserTypes({ isDesktopLike: false, isMobile: true })).toEqual(['local', 'deepseek'])
     expect(customParserTypes({ isDesktopLike: true, isMobile: false })).toEqual(['local', 'mineru', 'deepseek'])
   })
 
-  test('image preset follows a missing or Chatbox last-used picture model', () => {
+  test('image preset follows a missing last-used picture model', () => {
     expect(isSlotPresetOn('image', settings())).toBe(true)
-    expect(isSlotPresetOn('image', settings(), { provider: ModelProviderEnum.ChatboxAI, modelId: 'flux' })).toBe(true)
     expect(isSlotPresetOn('image', settings(), { provider: 'openai', modelId: 'gpt-image-1' })).toBe(false)
   })
 
-  test('applying Chatbox presets clears custom models and restores built-in parser and search', () => {
+  test('applying presets clears custom models and restores built-in parser and search', () => {
     const current = settings({
       defaultChatModel: { provider: 'openai', model: 'gpt-4.1' },
       extension: {
@@ -131,12 +106,12 @@ describe('model rig slot settings', () => {
       defaultEmbeddingModel: undefined,
       defaultRerankModel: undefined,
     })
-    expect(applyAllPresetsExtension(current).webSearch.provider).toBe('build-in')
-    expect(applyAllPresetsExtension(current).documentParser?.type).toBe('chatbox-ai')
+    expect(applyAllPresetsExtension(current).webSearch.provider).toBe('bing')
+    expect(applyAllPresetsExtension(current).documentParser?.type).toBe('local')
     expect(applyAllPresetsExtension(current).webSearch.tavilyApiKey).toBe('secret')
   })
 
-  test('coming-soon slots stay off the Chatbox preset', () => {
+  test('coming-soon slots stay off the preset', () => {
     expect(isSlotPresetOn('asr', settings())).toBe(false)
     expect(isSlotPresetOn('tts', settings())).toBe(false)
   })
@@ -152,7 +127,6 @@ describe('model rig slot tests', () => {
     const result = await runSlotTest('asr', {
       settings: settings(),
       configuredProviderIds: new Set(),
-      hasLicense: true,
       isDesktopLike: true,
       pingChat: async () => undefined,
       testMineru: async () => true,
@@ -166,7 +140,6 @@ describe('model rig slot tests', () => {
     const result = await runSlotTest('fast', {
       settings: settings(),
       configuredProviderIds: new Set(),
-      hasLicense: false,
       isDesktopLike: true,
       pingChat: () => Promise.reject(new Error('should not ping')),
       testMineru: async () => true,
@@ -179,7 +152,6 @@ describe('model rig slot tests', () => {
     const result = await runSlotTest('llm', {
       settings: settings(),
       configuredProviderIds: new Set(),
-      hasLicense: true,
       isDesktopLike: true,
       pingChat: () => Promise.reject(new Error('should not ping')),
       testMineru: async () => true,
@@ -193,7 +165,6 @@ describe('model rig slot tests', () => {
     const result = await runSlotTest('llm', {
       settings: settings({ defaultChatModel: { provider: 'openai', model: 'gpt-4.1' } }),
       configuredProviderIds: new Set(),
-      hasLicense: false,
       isDesktopLike: true,
       pingChat: (provider, model) => {
         pinged.push(`${provider}/${model}`)
@@ -206,27 +177,24 @@ describe('model rig slot tests', () => {
     expect(pinged).toEqual(['openai/gpt-4.1'])
   })
 
-  test('web search built-in requires a license before it searches', async () => {
+  test('Bing search works without a license', async () => {
     const result = await runSlotTest('search', {
       settings: settings(),
-      configuredProviderIds: new Set(['openai']),
-      hasLicense: false,
+      configuredProviderIds: new Set(),
       isDesktopLike: true,
       pingChat: async () => undefined,
       testMineru: async () => true,
       searchWeb: async () => undefined,
     })
-    expect(result.status).toBe('fail')
-    expect(result.error).toMatch(/not activated/i)
+    expect(result.status).toBe('ok')
   })
 
   test('local document parser passes without a network call', async () => {
     const result = await runSlotTest('parser', {
       settings: settings({
-        extension: { webSearch: { provider: 'build-in' }, documentParser: { type: 'local' } },
+        extension: { webSearch: { provider: 'bing' }, documentParser: { type: 'local' } },
       }),
       configuredProviderIds: new Set(),
-      hasLicense: false,
       isDesktopLike: true,
       pingChat: () => Promise.reject(new Error('should not ping')),
       testMineru: async () => true,
@@ -240,11 +208,10 @@ describe('DeepSeek document parser', () => {
   function parserDeps(apiKey: string) {
     return {
       settings: settings({
-        extension: { webSearch: { provider: 'build-in' }, documentParser: { type: 'deepseek' } },
+        extension: { webSearch: { provider: 'bing' }, documentParser: { type: 'deepseek' } },
         providers: { [ModelProviderEnum.DeepSeek]: { apiKey } },
       }),
       configuredProviderIds: new Set<string>(),
-      hasLicense: false,
       isDesktopLike: true,
       pingChat: () => Promise.reject(new Error('should not ping')),
       testMineru: () => Promise.reject(new Error('should not test MinerU')),
@@ -277,7 +244,6 @@ describe('model configuration availability', () => {
         }),
         picture: { provider: 'openai', modelId: 'saved-model' },
         configuredProviderIds: new Set<string>(),
-        hasLicense: false,
         isDesktopLike: true,
         pingChat: async () => undefined,
         testMineru: async () => true,
@@ -300,7 +266,6 @@ describe('helper model connections', () => {
     await runSlotTest('fast', {
       settings: settings({ threadNamingModel, searchTermConstructionModel }),
       configuredProviderIds: new Set(['openai']),
-      hasLicense: false,
       isDesktopLike: true,
       pingChat: async (_provider, model) => {
         pinged.push(model)

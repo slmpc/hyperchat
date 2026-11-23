@@ -88,11 +88,7 @@ describe('settings cards', () => {
     expect(paper).not.toMatch(/\sbg=/)
   }
 
-  test.each([
-    'src/renderer/routes/settings/provider/chatbox-ai/-components/LoginView.tsx',
-    'src/renderer/routes/settings/provider/chatbox-ai/-components/LicenseKeyView.tsx',
-    'src/renderer/routes/settings/provider/chatbox-ai/-components/LoggedInView.tsx',
-  ])('%s puts bordered Papers on the raised surface', (file) => {
+  test.each([])('%s puts bordered Papers on the raised surface', (file) => {
     const source = readFileSync(path.resolve(root, file), 'utf8')
     const papers = source.match(/<Paper\b[^>]*withBorder[^>]*>/g) ?? []
     expect(papers.length).toBeGreaterThan(0)

@@ -1,20 +1,11 @@
 import { ActionIcon, Button, Flex, Text } from '@mantine/core'
-import { ChatboxAIAPIError } from '@shared/models/errors'
 import type { ImageGeneration } from '@shared/types'
-import { IconCheck, IconCopy, IconRefresh, IconSettings } from '@tabler/icons-react'
+import { IconCheck, IconCopy, IconRefresh } from '@tabler/icons-react'
 import { Trans, useTranslation } from 'react-i18next'
-import { QuotaExhaustedCard } from '@/components/chat/QuotaExhaustedCard'
 import { ErrorNotice } from '@/components/common/ErrorNotice'
 import classes from '@/components/common/ErrorNotice.module.css'
-import LinkTargetBlank from '@/components/common/Link'
 import { AppTooltip as Tooltip } from '@/components/ui/tooltip'
 import { useCopied } from '@/hooks/useCopied'
-import { navigateToSettings } from '@/modals/settings-navigation'
-import { trackingEvent } from '@/packages/event'
-import { buildChatboxUrl } from '@/packages/remote'
-import platform from '@/platform'
-import * as settingActions from '@/stores/settingActions'
-import { useSettingsStore } from '@/stores/settingsStore'
 
 export interface ImageGenerationErrorTipsProps {
   record: ImageGeneration
@@ -45,94 +36,22 @@ function ImageGenerationTaskErrorMessage({ errorCode }: { errorCode: ImageGenera
 }
 
 export function ImageGenerationErrorTips({ record, onRetry, isRetrying }: ImageGenerationErrorTipsProps) {
-  const { t, i18n } = useTranslation()
-  const plan = useSettingsStore((state) => state.licenseDetail?.plan)
+  const { t } = useTranslation()
 
-  const chatboxAIErrorDetail =
-    typeof record.errorCode === 'number' ? ChatboxAIAPIError.getDetail(record.errorCode) : null
   const imageGenerationTaskErrorCode = isImageGenerationTaskErrorCode(record.errorCode) ? record.errorCode : undefined
   const errorDebugInfo = [
     record.errorItemUuid ? `UUID: ${record.errorItemUuid}` : undefined,
     record.taskId ? `Task ID: ${record.taskId}` : undefined,
   ].filter((item): item is string => !!item)
-  const showErrorDebugInfo = Boolean(
-    (chatboxAIErrorDetail || imageGenerationTaskErrorCode) && errorDebugInfo.length > 0
-  )
+  const showErrorDebugInfo = Boolean(imageGenerationTaskErrorCode && errorDebugInfo.length > 0)
   const { copied, copy } = useCopied(errorDebugInfo.join('\n'))
-  const isLicenseError =
-    chatboxAIErrorDetail && ['license_not_found', 'expired_license'].includes(chatboxAIErrorDetail.name)
-
-  if (chatboxAIErrorDetail?.name === 'image_points_insufficient' || record.errorCode === 'image_points_insufficient') {
-    const canUpgrade = plan === 'lite' || plan === 'pro' || plan === 'free'
-    const locale = i18n.language.startsWith('zh') ? 'zh' : 'en'
-    const buy = () => platform.openLink(buildChatboxUrl(`/${locale}/user`))
-    return (
-      <QuotaExhaustedCard
-        kind="quota-exhausted"
-        title={t<string>('Insufficient points')}
-        description={
-          canUpgrade
-            ? t<string>(
-                'Your monthly image quota is used up, and you do not have enough compute points to generate images.\nPlease upgrade your plan or buy an expansion pack.'
-              )
-            : t<string>(
-                'Your monthly image quota is used up, and you do not have enough compute points to generate images.\nPlease buy an expansion pack for more points.'
-              )
-        }
-        action={canUpgrade ? 'upgrade-plan' : 'buy-expansion-pack'}
-        onAction={canUpgrade ? () => platform.openLink(buildChatboxUrl(`/${locale}/pricing`)) : buy}
-        secondaryActions={[
-          ...(canUpgrade ? [{ label: t('Buy expansion pack'), onClick: buy }] : []),
-          { label: t('Retry'), onClick: onRetry, loading: isRetrying },
-        ]}
-      />
-    )
-  }
-
   return (
     <ErrorNotice icon="error">
       <Text fw={500} size="sm" lh="20px">
         {t('Generation Failed')}
       </Text>
 
-      {chatboxAIErrorDetail ? (
-        <Text size="sm" c="chatbox-secondary" lh="20px" className={classes.tip}>
-          <Trans
-            i18nKey={chatboxAIErrorDetail.i18nKey}
-            values={{
-              model: record.model.modelId,
-            }}
-            components={{
-              OpenSettingButton: (
-                <Text
-                  component="span"
-                  className="cursor-pointer underline"
-                  c="chatbox-brand"
-                  onClick={() => navigateToSettings()}
-                />
-              ),
-              OpenMorePlanButton: (
-                <Text
-                  component="span"
-                  className="cursor-pointer underline"
-                  c="chatbox-brand"
-                  onClick={() => {
-                    platform.openLink(
-                      buildChatboxUrl(
-                        `/redirect_app/view_more_plans/${settingActions.getLanguage()}?utm_source=app&utm_content=image_creator_upgrade_required`
-                      )
-                    )
-                    trackingEvent('click_view_more_plans_button_from_image_creator', {
-                      event_category: 'user',
-                    })
-                  }}
-                />
-              ),
-              LinkToHomePage: <LinkTargetBlank href="https://chatboxai.app" />,
-            }}
-          />
-        </Text>
-      ) : imageGenerationTaskErrorCode ? (
+      {imageGenerationTaskErrorCode ? (
         <Text size="sm" c="chatbox-secondary" lh="20px" className={classes.tip}>
           <ImageGenerationTaskErrorMessage errorCode={imageGenerationTaskErrorCode} />
         </Text>
@@ -184,19 +103,6 @@ export function ImageGenerationErrorTips({ record, onRetry, isRetrying }: ImageG
         >
           {t('Retry')}
         </Button>
-        {isLicenseError && (
-          <Button
-            variant="light"
-            color="gray"
-            size="sm"
-            fw={400}
-            rightSection={<IconSettings size={16} />}
-            onClick={() => navigateToSettings()}
-            radius="md"
-          >
-            {t('Settings')}
-          </Button>
-        )}
       </Flex>
     </ErrorNotice>
   )

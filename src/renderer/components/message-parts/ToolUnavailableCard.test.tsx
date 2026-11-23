@@ -26,6 +26,7 @@ Object.defineProperty(window, 'matchMedia', {
 })
 
 vi.mock('react-i18next', () => ({
+  Trans: ({ i18nKey }: { i18nKey: string }) => <span>{i18nKey}</span>,
   useTranslation: () => ({
     t: (key: string, values?: { tool?: string }) => (values?.tool ? key.replace('{{tool}}', values.tool) : key),
   }),
@@ -33,9 +34,6 @@ vi.mock('react-i18next', () => ({
 
 vi.mock('@/hooks/useScreenChange', () => ({ useIsSmallScreen: () => mocks.isSmallScreen }))
 vi.mock('@/modals/settings-navigation', () => ({ navigateToSettings: mocks.navigateToSettings }))
-vi.mock('@/components/common/ChatboxAIErrorMessage', () => ({
-  ChatboxAIErrorMessage: ({ errorCode }: { errorCode: number }) => <span>Known error {errorCode}</span>,
-}))
 
 import { ToolUnavailableCard } from './ToolUnavailableCard'
 
@@ -45,7 +43,7 @@ describe('ToolUnavailableCard', () => {
     mocks.navigateToSettings.mockReset()
   })
 
-  it('guides a signed-out user to Chatbox AI or Web Search settings', async () => {
+  it('opens Web Search settings', async () => {
     render(
       <MantineProvider>
         <ToolUnavailableCard toolLabel="Web Search" toolName="web_search" errorCode={20024} />
@@ -53,13 +51,10 @@ describe('ToolUnavailableCard', () => {
     )
 
     expect(screen.getByRole('status')).toBeTruthy()
-    expect(screen.getByText('Web Search was not run: sign in to use Chatbox AI Search')).toBeTruthy()
-    expect(screen.getByText(/does not require an API key/)).toBeTruthy()
+    expect(screen.getByText('Web Search could not run')).toBeTruthy()
 
-    fireEvent.click(screen.getByRole('button', { name: 'Sign in to Chatbox AI' }))
-    await waitFor(() => expect(mocks.navigateToSettings).toHaveBeenNthCalledWith(1))
     fireEvent.click(screen.getByRole('button', { name: 'Web Search settings' }))
-    await waitFor(() => expect(mocks.navigateToSettings).toHaveBeenNthCalledWith(2, '/web-search'))
+    await waitFor(() => expect(mocks.navigateToSettings).toHaveBeenCalledWith('/web-search'))
   })
 
   it('is a translucent glass fill whose background comes from classes, not inline styles', () => {
@@ -82,7 +77,7 @@ describe('ToolUnavailableCard', () => {
     )
 
     expect(screen.getByText('Web Search could not run')).toBeTruthy()
-    expect(screen.getByText('Known error 20025')).toBeTruthy()
+    expect(screen.getByText(/You have selected Tavily/)).toBeTruthy()
   })
 
   it('stacks full-width actions on small screens', () => {
@@ -93,7 +88,6 @@ describe('ToolUnavailableCard', () => {
       </MantineProvider>
     )
 
-    expect(screen.getByRole('button', { name: 'Sign in to Chatbox AI' }).getAttribute('data-block')).toBe('true')
     expect(screen.getByRole('button', { name: 'Web Search settings' }).getAttribute('data-block')).toBe('true')
   })
 })

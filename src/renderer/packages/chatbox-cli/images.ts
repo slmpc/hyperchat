@@ -1,5 +1,5 @@
 import { supportsImageReferenceInput } from '@chatbox/core/application/image-generation'
-import { type ImageGeneration, ModelProviderEnum } from '@shared/types'
+import { type ImageGeneration } from '@shared/types'
 import { requestAppActionApproval } from '@/packages/app-action-approval'
 import { type AvailableImageModel, getAvailableImageModels } from '@/packages/image-model-catalog'
 import storage from '@/storage'
@@ -7,7 +7,6 @@ import { getImageGenerationService, startImageGeneration } from '@/stores/imageG
 import { imageGenerationStore } from '@/stores/imageGenerationStore'
 import { settingsStore } from '@/stores/settingsStore'
 import { getAcceptedImageBackgroundTaskResult } from './background-task-result'
-import { getComputePointsRemainingRatio } from './compute-points'
 import { queueImageTaskCompletion, queueImageTaskCompletionError } from './image-task-follow-up'
 import { ChatboxCliUsageError, integerFlag, stringFlag } from './parser'
 import { visitSelectedSessionMessages } from './session-row-scan'
@@ -54,7 +53,7 @@ const MAX_MODELS_IN_ERROR = 20
 
 function describeAvailableImageModels(models: AvailableImageModel[]): string {
   if (models.length === 0) {
-    return 'No image models are configured. Configure a Chatbox license or an image-capable provider in Chatbox Settings.'
+    return 'No image models are configured. Configure an image-capable provider in Chatbox Settings.'
   }
   const entries = models
     .slice(0, MAX_MODELS_IN_ERROR)
@@ -421,7 +420,7 @@ async function generateImage(context: ChatboxCliCommandContext): Promise<Record<
     throw new ChatboxCliUsageError(
       availableModels?.length
         ? `Unable to resolve an image model. ${describeAvailableImageModels(availableModels)}`
-        : 'No image models are configured. Configure a Chatbox license or an image-capable provider in Chatbox Settings, then retry.'
+        : 'No image models are configured. Configure an image-capable provider in Chatbox Settings, then retry.'
     )
   }
   const signature = JSON.stringify({
@@ -465,7 +464,6 @@ async function generateImage(context: ChatboxCliCommandContext): Promise<Record<
   }
 
   if (!approvedRequest) {
-    const licenseDetail = settings.licenseDetail
     await requestAppActionApproval(
       toolCallId,
       'image.generate',
@@ -487,16 +485,7 @@ async function generateImage(context: ChatboxCliCommandContext): Promise<Record<
         aspectRatio,
         style: dalleStyle,
         referenceImages,
-        billing: provider === ModelProviderEnum.ChatboxAI ? 'chatbox_quota' : 'provider',
-        ...(provider === ModelProviderEnum.ChatboxAI && licenseDetail
-          ? {
-              imageQuota: {
-                remaining: Math.max(licenseDetail.image_total_quota - licenseDetail.image_used_count, 0),
-                total: licenseDetail.image_total_quota,
-              },
-              computePointsRemainingRatio: getComputePointsRemainingRatio(licenseDetail),
-            }
-          : {}),
+        billing: 'provider',
       }
     )
     throw new Error('Image generation cannot start without matching structured approval details.')

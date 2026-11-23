@@ -2,7 +2,6 @@ import type { ModelDependencies } from '@shared/types/adapters'
 import { jsonSchema, type ModelMessage, type ToolSet } from 'ai'
 import { describe, expect, it, vi } from 'vitest'
 import type AbstractAISDKModel from '../../../models/abstract-ai-sdk'
-import ChatboxAI from './chatboxai'
 import Claude from './claude'
 import CustomClaude from './custom-claude'
 import OpenRouter from './openrouter'
@@ -191,53 +190,6 @@ function expectAnthropicTailBreakpoints(bodies: JsonObject[], cacheControl: unkn
 }
 
 describe('Anthropic prompt-cache breakpoints across a tool loop', () => {
-  it.each([true, false])('advances Chatbox AI breakpoints on every round (chatStream=%s)', async (viaChatStream) => {
-    const transport = createTransport(anthropicResponse)
-    const model = new ChatboxAI(
-      {
-        licenseKey: 'license',
-        model: { modelId: 'claude-test', apiStyle: 'anthropic', capabilities: ['tool_use'] },
-        language: 'en',
-        dalleStyle: 'vivid',
-      },
-      { uuid: 'uuid' },
-      createDependencies(transport.handle)
-    )
-    await runToolLoop(model, viaChatStream)
-    expectAnthropicTailBreakpoints(transport.bodies, { type: 'ephemeral' })
-  })
-
-  it('re-marks the transcript after a step compacts it', async () => {
-    const transport = createTransport(anthropicResponse)
-    const model = new ChatboxAI(
-      {
-        licenseKey: 'license',
-        model: { modelId: 'claude-test', apiStyle: 'anthropic', capabilities: ['tool_use'] },
-        language: 'en',
-        dalleStyle: 'vivid',
-      },
-      { uuid: 'uuid' },
-      createDependencies(transport.handle)
-    )
-    for await (const _chunk of model.chatStream(messages, {
-      tools,
-      maxSteps: TOOL_ROUNDS + 1,
-      prepareStep: ({ stepNumber, messages: transcript }) =>
-        stepNumber === 2
-          ? { messages: [transcript[0], { role: 'user', content: 'Summary of earlier work' }, ...transcript.slice(-2)] }
-          : undefined,
-    })) {
-    }
-
-    const compacted = transport.bodies[2]
-    expect((compacted.messages as unknown[]).length).toBe(3)
-    expect(anthropicCachedBlocks(compacted).map(({ message, block }) => ({ message, block }))).toEqual([
-      { message: -1, block: 0 },
-      { message: 0, block: 0 },
-      lastBlock(compacted),
-    ])
-  })
-
   it('keeps the selected TTL on every Claude round', async () => {
     const transport = createTransport(anthropicResponse)
     const model = new Claude(
@@ -332,22 +284,5 @@ describe('Anthropic prompt-cache breakpoints across a tool loop', () => {
       reasoning_details: reasoningDetails,
     })
     expect(JSON.stringify(assistant.reasoning_details)).not.toContain('cache_control')
-  })
-
-  it('does not mark non-Anthropic Chatbox AI requests', async () => {
-    const transport = createTransport(openAIResponse)
-    const model = new ChatboxAI(
-      {
-        licenseKey: 'license',
-        model: { modelId: 'gpt-test', apiStyle: 'openai', capabilities: ['tool_use'] },
-        language: 'en',
-        dalleStyle: 'vivid',
-      },
-      { uuid: 'uuid' },
-      createDependencies(transport.handle)
-    )
-    await runToolLoop(model, true)
-    expect(transport.bodies).toHaveLength(TOOL_ROUNDS + 1)
-    expect(JSON.stringify(transport.bodies)).not.toContain('cache_control')
   })
 })

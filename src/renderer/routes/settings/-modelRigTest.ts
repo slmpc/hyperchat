@@ -17,14 +17,11 @@ export type ModelRigTestDeps = {
   settings: Settings
   configuredProviderIds: ReadonlySet<string>
   picture?: PictureRef
-  hasLicense: boolean
   isDesktopLike: boolean
   pingChat: (provider: string, modelId: string, vision?: boolean) => Promise<void>
   testMineru: (token: string) => Promise<boolean>
   searchWeb: () => Promise<void>
 }
-
-const CHATBOX_OCR_MODEL_ID = 'chatbox-ocr-1'
 
 async function timed(run: () => Promise<void>): Promise<{ latencyMs: number }> {
   const started = performance.now()
@@ -76,32 +73,14 @@ async function testChatSlot(slotId: 'llm' | 'fast', deps: ModelRigTestDeps): Pro
 
 async function testOcrSlot(deps: ModelRigTestDeps): Promise<SlotTestResult> {
   const selection = deps.settings.ocrModel
-  if (!selection) {
-    if (!deps.hasLicense) {
-      return fail('No OCR model is available', 'Activate Chatbox AI, or pick a vision model of your own.')
-    }
-    const { latencyMs } = await timed(() =>
-      pingResolvedChat(deps, ModelProviderEnum.ChatboxAI, CHATBOX_OCR_MODEL_ID, true)
-    )
-    return ok(latencyMs)
-  }
+  if (!selection) return fail('No OCR model is available', 'Pick a vision model from a configured provider.')
   const { latencyMs } = await timed(() => pingResolvedChat(deps, selection.provider, selection.model, true))
   return ok(latencyMs)
 }
 
 function testMemorySlot(slotId: 'embedding' | 'rerank', deps: ModelRigTestDeps): SlotTestResult {
   const selection = slotId === 'embedding' ? deps.settings.defaultEmbeddingModel : deps.settings.defaultRerankModel
-  if (!selection || isChatboxProviderSafe(selection.provider)) {
-    if (!deps.hasLicense) {
-      return fail(
-        'Chatbox AI is not activated',
-        slotId === 'embedding'
-          ? 'Activate Chatbox AI to use the built-in embedding model, or pick one from a provider you already configured.'
-          : 'Activate Chatbox AI to use the built-in rerank model, or pick one from a provider you already configured.'
-      )
-    }
-    return ok(0)
-  }
+  if (!selection) return ok(0)
   if (!deps.configuredProviderIds.has(selection.provider)) {
     return fail(
       'This provider is not configured',
@@ -112,17 +91,8 @@ function testMemorySlot(slotId: 'embedding' | 'rerank', deps: ModelRigTestDeps):
 }
 
 async function testParserSlot(deps: ModelRigTestDeps): Promise<SlotTestResult> {
-  const type = effectiveParserType(deps.settings, deps.isDesktopLike ? 'local' : 'chatbox-ai')
+  const type = effectiveParserType(deps.settings, 'local')
   if (type === 'local') {
-    return ok(0)
-  }
-  if (type === 'chatbox-ai') {
-    if (!deps.hasLicense && !deps.isDesktopLike) {
-      return fail(
-        'Chatbox AI is not activated',
-        'Activate Chatbox AI for cloud parsing, or switch to local parsing on desktop.'
-      )
-    }
     return ok(0)
   }
   if (type === 'deepseek') {
@@ -147,9 +117,6 @@ async function testParserSlot(deps: ModelRigTestDeps): Promise<SlotTestResult> {
 
 async function testSearchSlot(deps: ModelRigTestDeps): Promise<SlotTestResult> {
   const provider = searchProvider(deps.settings)
-  if (provider === 'build-in' && !deps.hasLicense) {
-    return fail('Chatbox AI is not activated', 'Activate Chatbox AI, or pick another search provider.')
-  }
   if (provider === 'tavily' && !deps.settings.extension?.webSearch?.tavilyApiKey) {
     return fail('Tavily API key is missing', 'Add a Tavily API key in Web Search settings.')
   }
@@ -171,12 +138,7 @@ async function testSearchSlot(deps: ModelRigTestDeps): Promise<SlotTestResult> {
 
 function testImageSlot(deps: ModelRigTestDeps): SlotTestResult {
   const picture = deps.picture
-  if (!picture || isChatboxProviderSafe(picture.provider)) {
-    if (!deps.hasLicense) {
-      return fail('Chatbox AI is not activated', 'Activate Chatbox AI, or pick an image model from another provider.')
-    }
-    return ok(0)
-  }
+  if (!picture) return ok(0)
   if (!deps.configuredProviderIds.has(picture.provider)) {
     return fail(
       'This provider is not configured',
@@ -188,8 +150,4 @@ function testImageSlot(deps: ModelRigTestDeps): SlotTestResult {
 
 async function pingResolvedChat(deps: ModelRigTestDeps, provider: string, modelId: string, vision?: boolean) {
   await deps.pingChat(provider, modelId, vision)
-}
-
-function isChatboxProviderSafe(provider?: string) {
-  return provider === ModelProviderEnum.ChatboxAI
 }

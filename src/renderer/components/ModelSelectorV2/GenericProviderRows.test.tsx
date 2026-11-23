@@ -13,19 +13,15 @@ vi.mock('./ProviderRowHeader', () => ({
   ProviderRowHeader: ({ provider }: { provider: { name: string } }) => <header>{provider.name}</header>,
 }))
 
-const provider = { id: ModelProviderEnum.ChatboxAI, name: 'Chatbox AI' }
-const model = { modelId: 'cached-chat', nickname: 'Cached Chat' }
+const provider = { id: ModelProviderEnum.OpenAI, name: 'OpenAI' }
+const model = { modelId: 'cached-chat', nickname: 'Configured Chat' }
 const noop = () => undefined
 
-function renderRows(favoriteOnly: boolean, hasChatboxCatalog: boolean, withByok = false) {
+function renderRows(favoriteOnly: boolean) {
   return renderToStaticMarkup(
     <GenericProviderRows
       favoriteOnly={favoriteOnly}
-      hasChatboxCatalog={hasChatboxCatalog}
-      genericProviders={[
-        { ...provider, models: [model] },
-        ...(withByok ? [{ id: 'custom', name: 'Custom', models: [{ modelId: 'byok-chat' }] }] : []),
-      ]}
+      genericProviders={[{ ...provider, models: [model] }]}
       favoritedModels={[{ provider, model }]}
       collapsedProviders={{}}
       search=""
@@ -42,26 +38,8 @@ function renderRows(favoriteOnly: boolean, hasChatboxCatalog: boolean, withByok 
   )
 }
 
-describe('Chatbox AI cached model rows', () => {
-  it.each([false, true])('renders cached models without a catalog, favoriteOnly=%s', (favoriteOnly) => {
-    const html = renderRows(favoriteOnly, false)
-    expect(html).toContain('Cached Chat')
-    expect(html).not.toContain('BYOK')
-  })
-
-  it.each([false, true])('leaves catalog-backed models to catalog rows, favoriteOnly=%s', (favoriteOnly) => {
-    expect(renderRows(favoriteOnly, true)).not.toContain('Cached Chat')
-  })
-
-  it('places the BYOK section after cached Chatbox models', () => {
-    const html = renderRows(false, false, true)
-    expect(html.indexOf('Cached Chat')).toBeLessThan(html.indexOf('BYOK'))
-    expect(html.indexOf('BYOK')).toBeLessThan(html.indexOf('byok-chat'))
-  })
-
-  it('gives the sticky BYOK divider a plain bar fill instead of a second glass layer', () => {
-    const html = renderRows(false, false, true)
-    expect(html).toContain('chatbox-glass-bar')
-    expect(html).not.toContain('chatbox-glass-surface')
+describe('configured provider rows', () => {
+  it.each([false, true])('renders configured models, favoriteOnly=%s', (favoriteOnly) => {
+    expect(renderRows(favoriteOnly)).toContain('Configured Chat')
   })
 })

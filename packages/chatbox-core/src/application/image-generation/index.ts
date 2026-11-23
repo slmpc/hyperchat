@@ -1,6 +1,5 @@
 export { fetchOpenRouterImageModels } from '@shared/providers/definitions/models/openrouter-image-api'
 export type { ImageGeneration, ImageGenerationModel, ImageGenerationPage, ImageModelCapabilities } from '../../types'
-export * from './async-client'
 export * from './catalog'
 export { IMAGE_GENERATION_POLL_INTERVAL_MS, ImageGenerationService } from './ImageGenerationService'
 export { getImageGenerationErrorDetail } from './presentation'

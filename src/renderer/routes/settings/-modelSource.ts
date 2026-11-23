@@ -1,6 +1,5 @@
 /** Labels the configured service endpoint, not the model's execution or privacy guarantees. */
-export function modelEndpointLocation(endpoint: string | undefined, isChatbox: boolean): string {
-  if (isChatbox) return 'Remote · Chatbox AI'
+export function modelEndpointLocation(endpoint: string | undefined): string {
   if (!endpoint) return 'Provider-managed service'
   try {
     const url = new URL(endpoint)

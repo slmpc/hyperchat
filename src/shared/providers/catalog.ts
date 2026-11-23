@@ -1,6 +1,6 @@
 import { isUsingOAuth } from '../oauth'
 import type { PlatformType } from '../platform'
-import { ModelProviderEnum, type ProviderModelInfo, type Settings } from '../types'
+import { type ProviderModelInfo, type Settings } from '../types'
 import { getAllProviders, isProviderAvailableOnPlatform } from './registry'
 
 export interface ProviderCatalogProjection {
@@ -40,10 +40,7 @@ export function projectProviderCatalog(settings: Settings, platform: PlatformTyp
     const models = (persisted?.models ?? definition.defaultSettings?.models ?? []).filter(
       (model) => !excluded.has(model.modelId)
     )
-    const configured =
-      (definition.id === ModelProviderEnum.ChatboxAI && Boolean(settings.licenseKey?.trim())) ||
-      hasCredentials(persisted, platform) ||
-      Boolean(persisted?.models?.length)
+    const configured = hasCredentials(persisted, platform) || Boolean(persisted?.models?.length)
     const runtimeSupported = isProviderAvailableOnPlatform(definition.id, platform)
     return {
       id: definition.id,

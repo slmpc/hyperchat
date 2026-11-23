@@ -3,7 +3,6 @@ import { zodValidator } from '@tanstack/zod-adapter'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
-import { BuiltinServersSection } from '@/components/settings/mcp/BuiltinServersSection'
 import CustomServersSection from '@/components/settings/mcp/CustomServersSection'
 import { parseServerFromJson } from '@/components/settings/mcp/utils'
 import { SettingsPage } from '@/components/settings/SettingsLayout'
@@ -67,7 +66,6 @@ export function RouteComponent() {
           : t('Tools from MCP servers are available to models that support tool use.')
       }
     >
-      <BuiltinServersSection />
       <CustomServersSection installConfig={installConfig} />
     </SettingsPage>
   )

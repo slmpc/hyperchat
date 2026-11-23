@@ -19,10 +19,9 @@ export interface NativeWebSearchResultItem {
 }
 
 /** Same provider set the renderer's Web Search settings expose. */
-export type NativeWebSearchProvider = 'build-in' | 'bing' | 'deepseek' | 'tavily' | 'bocha' | 'querit' | 'searxng'
+export type NativeWebSearchProvider = 'bing' | 'deepseek' | 'tavily' | 'bocha' | 'querit' | 'searxng'
 
 export const nativeWebSearchProviderOptions: Array<{ id: NativeWebSearchProvider; label: string }> = [
-  { id: 'build-in', label: 'Chatbox AI' },
   { id: 'bing', label: 'Bing Search' },
   { id: 'deepseek', label: 'DeepSeek' },
   { id: 'tavily', label: 'Tavily' },
@@ -42,7 +41,7 @@ export interface NativeWebSearchSettings {
 // is the default. Bare Bing scraping is unreliable from native HTTP clients --
 // without a real browser UA/cookies Bing serves a JS shell with zero results.
 export const defaultNativeWebSearchSettings: NativeWebSearchSettings = {
-  provider: 'build-in',
+  provider: 'bing',
   apiKey: '',
   apiHost: '',
 }
@@ -65,25 +64,14 @@ export interface NativeWebSearchOptions {
   provider?: NativeWebSearchProvider
   apiKey?: string
   apiHost?: string
-  /** Chatbox license key, used by the `build-in` provider. */
-  licenseKey?: string
-  /** Chatbox API origin override for the `build-in` provider. */
-  chatboxApiOrigin?: string
   signal?: AbortSignalLike
   fetchFn?: NativeFetch
   maxResults?: number
   /** Querit-only knobs (renderer settings webSearch.queritMaxResults / queritTimeRange). */
   queritTimeRange?: string | null
-  /**
-   * Extra headers merged into the request. The renderer's `build-in` provider injects the
-   * Chatbox platform headers (CHATBOX-PLATFORM/VERSION/...) so the shared call matches the
-   * old `webBrowsing` remote request.
-   */
-  headers?: Record<string, string>
 }
 
 const TAVILY_DEFAULT_HOST = 'https://api.tavily.com'
-const CHATBOX_DEFAULT_ORIGIN = 'https://api.chatboxai.app'
 const DEFAULT_MAX_RESULTS = 8
 /** DeepSeek search accepts queries of at most 128 characters. */
 const DEEPSEEK_MAX_QUERY_LENGTH = 128
@@ -130,8 +118,7 @@ export function getNativeWebSearchProviderLabel(provider: NativeWebSearchProvide
 }
 
 export function hasNativeWebSearchConfiguration(
-  settings: Pick<NativeWebSearchSettings, 'provider' | 'apiKey'> & Partial<Pick<NativeWebSearchSettings, 'apiHost'>>,
-  licenseKey?: string
+  settings: Pick<NativeWebSearchSettings, 'provider' | 'apiKey'> & Partial<Pick<NativeWebSearchSettings, 'apiHost'>>
 ): boolean {
   if (
     settings.provider === 'deepseek' ||
@@ -141,7 +128,6 @@ export function hasNativeWebSearchConfiguration(
   ) {
     return Boolean(settings.apiKey.trim())
   }
-  if (settings.provider === 'build-in') return Boolean(licenseKey?.trim())
   if (settings.provider === 'searxng') return Boolean(settings.apiHost?.trim())
   return true // bing needs no credentials
 }
@@ -153,7 +139,6 @@ export async function searchNativeWeb(
   const provider = options.provider ?? 'tavily'
   if (provider === 'deepseek') return searchNativeDeepSeek(query, options)
   if (provider === 'bing') return searchNativeBing(query, options)
-  if (provider === 'build-in') return searchNativeChatbox(query, options)
   if (provider === 'bocha') return searchNativeBocha(query, options)
   if (provider === 'querit') return searchNativeQuerit(query, options)
   if (provider === 'searxng') return searchNativeSearxng(query, options)
@@ -371,55 +356,6 @@ async function searchNativeTavily(
   return maxResults !== undefined ? items.slice(0, maxResults) : items
 }
 
-/**
- * Chatbox build-in search — single implementation behind the renderer's `build-in`
- * provider (which injects an afetch `fetchFn` for retry + Chatbox error parsing, plus the
- * Chatbox platform `headers`) and the native shell. `POST /api/tool/web-search`, license
- * key as Authorization. Replaces the old `webBrowsing` remote fork.
- */
-async function searchNativeChatbox(
-  query: string,
-  options: NativeWebSearchOptions
-): Promise<NativeWebSearchResultItem[]> {
-  const fetchFn = options.fetchFn ?? fetch
-  const origin = (options.chatboxApiOrigin?.trim() || CHATBOX_DEFAULT_ORIGIN).replace(/\/+$/, '')
-
-  const response = await fetchFn(`${origin}/api/tool/web-search`, {
-    method: 'POST',
-    headers: {
-      Authorization: options.licenseKey ?? '',
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    body: JSON.stringify({ query }),
-    signal: options.signal as NativeFetchInit['signal'],
-  } as NativeFetchInit)
-  const payload = (await response.json().catch(() => null)) as {
-    error?: unknown
-    data?: { links?: Array<{ title?: string; url?: string; content?: string }> }
-  } | null
-  if (!response.ok) {
-    // afetch (renderer) throws its parsed Chatbox error before we get here; this path
-    // gives the native plain-fetch caller a meaningful message instead of a bare status.
-    const message =
-      payload && typeof payload.error === 'string' ? payload.error : `Web search failed with status ${response.status}`
-    throw new Error(message)
-  }
-  // No client-side cap or link filtering: matches the old `webBrowsing` remote call, which
-  // returned every link the Chatbox backend sent (already a bounded ~10 Serper organic
-  // results + PeopleAlsoAsk set), so trimming here would only drop the tail.
-  const links = payload?.data?.links ?? []
-  return links.map((link) => ({
-    title: link.title ?? '',
-    link: link.url ?? '',
-    snippet: link.content ?? '',
-  }))
-}
-
-/**
- * Bing SERP search — the renderer's BingSearch port. React Native has no
- * DOMParser, so the `li.b_algo` items are extracted with tolerant regexes.
- */
 async function searchNativeBing(query: string, options: NativeWebSearchOptions): Promise<NativeWebSearchResultItem[]> {
   const fetchFn = options.fetchFn ?? fetch
   const maxResults = options.maxResults ?? DEFAULT_MAX_RESULTS

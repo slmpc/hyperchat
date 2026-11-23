@@ -137,52 +137,6 @@ describe('FileParseError', () => {
     mockSettingsState.licenseDetail = undefined
   })
 
-  test.each([
-    ['pro', 'Upgrade plan'],
-    ['pro_plus', 'Buy expansion pack'],
-  ])('offers the %s plan its purchase option when cloud parsing runs out of points', async (plan, actionLabel) => {
-    mockSettingsState.licenseDetail = { plan }
-    showFileParseError('token_quota_exhausted', 'lecture.pdf')
-
-    expect(await screen.findByText('Your points are used up')).toBeTruthy()
-    fireEvent.click(screen.getByText(actionLabel))
-
-    expect(mockOpenLink).toHaveBeenCalledWith(expect.stringContaining('/redirect_app/view_more_plans/en'))
-  })
-
-  test('offers free users an upgrade when the daily free points run out', async () => {
-    mockSettingsState.licenseDetail = { plan: 'pro_plus' }
-    showFileParseError('free_token_quota_exhausted', 'lecture.pdf')
-
-    expect(await screen.findByText('Upgrade plan')).toBeTruthy()
-    expect(screen.queryByText('Buy expansion pack')).toBeNull()
-  })
-
-  test('explains an expired plan and links to the plans page', async () => {
-    showFileParseError('expired_license', 'lecture.pdf')
-
-    expect(
-      await screen.findByText('Your license has expired. Please check your subscription or purchase a new one.')
-    ).toBeTruthy()
-    fireEvent.click(screen.getByText('View More Plans'))
-
-    expect(mockOpenLink).toHaveBeenCalledWith(expect.stringContaining('/redirect_app/view_more_plans/en'))
-  })
-
-  test('lets desktop users switch parsers when Chatbox AI parsing has no account license', async () => {
-    showFileParseError('chatbox_ai_parser_license_key_required', 'lecture.pdf')
-
-    expect(await screen.findByText('File: lecture.pdf')).toBeTruthy()
-    const openSettings = screen.getByText('Sign in to Chatbox AI')
-    const documentParser = screen.getByText('document parser')
-    expect(openSettings.tagName).toBe('BUTTON')
-    expect(documentParser.tagName).toBe('BUTTON')
-
-    fireEvent.click(openSettings)
-
-    expect(mockNavigateToSettings).toHaveBeenCalledWith('/chatbox-ai')
-  })
-
   test('sends a missing DeepSeek parser key to the DeepSeek model provider settings', async () => {
     showFileParseError('deepseek_parser_api_key_required', 'scan.pdf')
 
@@ -191,17 +145,4 @@ describe('FileParseError', () => {
 
     expect(mockNavigateToSettings).toHaveBeenCalledWith('/provider/deepseek')
   })
-
-  test.each(['web', 'mobile'])(
-    'only prompts %s users to sign in because no alternative parser is available',
-    async (type) => {
-      mockPlatform.type = type
-      mockPlatform.isDesktopLike = false
-      showFileParseError('chatbox_ai_parser_license_key_required', 'lecture.pdf')
-
-      expect(await screen.findByText('File: lecture.pdf')).toBeTruthy()
-      expect(screen.getByText('Sign in to Chatbox AI').tagName).toBe('BUTTON')
-      expect(screen.queryByText('document parser')).toBeNull()
-    }
-  )
 })

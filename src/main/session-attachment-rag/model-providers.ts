@@ -2,38 +2,28 @@ import type { EmbeddingModel } from 'ai'
 import { CohereClient } from 'cohere-ai'
 import { getProviderSettings } from '../../shared/models'
 import { DashScopeRerankClient, isDashScopeHost } from '../knowledge-base/dashscope-rerank-client'
-import { getChatboxAPIOrigin } from '../../shared/request/chatboxai_pool'
 import { parseKnowledgeBaseModelString } from '../../shared/utils/knowledge-base-model-parser'
 import { sentry } from '../adapters/sentry'
 import { cache } from '../cache'
 import { createEmbeddingProviderFromModelString } from '../knowledge-base/model-providers'
 import { getDefaultEmbeddingModelString, getDefaultRerankModelString } from '../rag-default-models'
-import { getSettings, store } from '../store-node'
+import { getSettings } from '../store-node'
 import { getLogger } from '../util'
 
 const log = getLogger('session-attachment-rag:model-providers')
 
-const SESSION_ATTACHMENT_EMBEDDING_MODEL = 'chatbox-ai:text-embedding-3-small'
-
 export type SessionAttachmentEmbeddingProviderResolution = {
   provider: EmbeddingModel
   modelString: string
-  source: 'chatbox-ai-license' | 'default-embedding-model'
+  source: 'default-embedding-model'
 }
 
 export function getSessionAttachmentEmbeddingModelString(): string | undefined {
-  const settings = getSettings()
-  const defaultEmbeddingModel = getDefaultEmbeddingModelString(settings)
-  return defaultEmbeddingModel || (store.get('settings.licenseKey') ? SESSION_ATTACHMENT_EMBEDDING_MODEL : undefined)
+  return getDefaultEmbeddingModelString(getSettings())
 }
 
 export async function getSessionAttachmentEmbeddingProviderWithResolution(): Promise<SessionAttachmentEmbeddingProviderResolution> {
-  const settings = getSettings()
-  const defaultEmbeddingModel = getDefaultEmbeddingModelString(settings)
   const embeddingModel = getSessionAttachmentEmbeddingModelString()
-  const source: SessionAttachmentEmbeddingProviderResolution['source'] = defaultEmbeddingModel
-    ? 'default-embedding-model'
-    : 'chatbox-ai-license'
 
   if (!embeddingModel) {
     throw new Error('session attachment embedding model not set')
@@ -44,7 +34,7 @@ export async function getSessionAttachmentEmbeddingProviderWithResolution(): Pro
     return {
       provider,
       modelString: embeddingModel,
-      source,
+      source: 'default-embedding-model',
     }
   } catch (error) {
     log.error(`[MODEL] Failed to resolve session attachment embedding provider: ${embeddingModel}`, error)
@@ -93,12 +83,8 @@ export async function getSessionAttachmentRerankProvider(modelString?: string | 
           settings
         )
 
-        let apiHost = formattedApiHost
-        let token = providerSetting.apiKey
-        if (providerId === 'chatbox-ai') {
-          apiHost = getChatboxAPIOrigin()
-          token = store.get('settings.licenseKey')
-        }
+        const apiHost = formattedApiHost
+        const token = providerSetting.apiKey
 
         if (!token) {
           throw new Error(`Missing token for rerank provider: ${providerId}`)

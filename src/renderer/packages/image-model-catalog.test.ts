@@ -35,10 +35,6 @@ import {
 } from './image-model-catalog'
 import { loadProviderImageModels } from './image-model-provider'
 
-function manifest(imageModels: Array<{ modelId: string; modelName: string }>) {
-  return { groupName: 'Images', models: [], imageModels }
-}
-
 function createSettings(): Settings {
   return defaultSettings()
 }
@@ -74,32 +70,14 @@ describe('image model catalog', () => {
     expect(getModelManifestMock).not.toHaveBeenCalled()
   })
 
-  it('loads the Chatbox manifest, applies exclusions, and preserves server order', async () => {
+  it('ignores a saved Chatbox AI license when listing image models', async () => {
     const settings = createSettings()
     settings.licenseKey = 'license'
-    settings.providers = {
-      [ModelProviderEnum.ChatboxAI]: { excludedModels: ['disabled-image'] },
-    }
-    getModelManifestMock.mockResolvedValue(
-      manifest([
-        { modelId: 'other-image', modelName: 'Other Image' },
-        { modelId: 'gpt-image-1.5', modelName: 'GPT Image 1.5' },
-        { modelId: 'disabled-image', modelName: 'Disabled Image' },
-      ])
-    )
-
-    await expect(getAvailableImageModels(settings)).resolves.toEqual([
-      { provider: ModelProviderEnum.ChatboxAI, modelId: 'other-image', nickname: 'Other Image' },
-      { provider: ModelProviderEnum.ChatboxAI, modelId: 'gpt-image-1.5', nickname: 'GPT Image 1.5' },
-    ])
-    expect(getModelManifestMock).toHaveBeenCalledWith({
-      aiProvider: ModelProviderEnum.ChatboxAI,
-      language: settings.language,
-      licenseKey: 'license',
-    })
+    await expect(getAvailableImageModels(settings)).resolves.toEqual([])
+    expect(getModelManifestMock).not.toHaveBeenCalled()
   })
 
-  it('merges remote and manual models for configured built-in and custom providers', async () => {
+  it('merges built-in and manual models for configured built-in and custom providers', async () => {
     const settings = createSettings()
     settings.providers = {
       [ModelProviderEnum.Gemini]: {
@@ -122,20 +100,17 @@ describe('image model catalog', () => {
         isCustom: true,
       },
     ]
-    getModelManifestMock.mockImplementation(({ aiProvider }: { aiProvider: ModelProviderEnum }) => {
-      if (aiProvider === ModelProviderEnum.Gemini) {
-        return Promise.resolve(manifest([{ modelId: 'gemini-remote', modelName: 'Remote Gemini Name' }]))
-      }
-      return Promise.resolve(manifest([{ modelId: 'openai-remote', modelName: 'Remote OpenAI' }]))
-    })
-
-    await expect(getAvailableImageModels(settings)).resolves.toEqual([
-      { provider: ModelProviderEnum.Gemini, modelId: 'gemini-remote', nickname: 'Manual Gemini Name' },
-      { provider: 'custom-provider-gemini', modelId: 'gemini-remote', nickname: 'Remote Gemini Name' },
-      { provider: 'custom-provider-gemini', modelId: 'custom-image', nickname: 'Custom Image' },
-      { provider: ModelProviderEnum.OpenAI, modelId: 'openai-remote', nickname: 'Remote OpenAI' },
-      { provider: ModelProviderEnum.OpenAI, modelId: 'openai-manual', nickname: 'Manual OpenAI' },
-    ])
+    const models = await getAvailableImageModels(settings)
+    expect(models).toEqual(
+      expect.arrayContaining([
+        { provider: ModelProviderEnum.Gemini, modelId: 'gemini-remote', nickname: 'Manual Gemini Name' },
+        { provider: 'custom-provider-gemini', modelId: 'gemini-3-pro-image', nickname: 'gemini-3-pro-image' },
+        { provider: 'custom-provider-gemini', modelId: 'custom-image', nickname: 'Custom Image' },
+        { provider: ModelProviderEnum.OpenAI, modelId: 'gpt-image-1.5', nickname: 'GPT Image 1.5' },
+        { provider: ModelProviderEnum.OpenAI, modelId: 'openai-manual', nickname: 'Manual OpenAI' },
+      ])
+    )
+    expect(getModelManifestMock).not.toHaveBeenCalled()
   })
 
   it('omits unconfigured providers', async () => {
@@ -155,9 +130,11 @@ describe('image model catalog', () => {
     }
     getModelManifestMock.mockRejectedValue(new Error('offline'))
 
-    await expect(getAvailableImageModels(settings)).resolves.toEqual([
-      { provider: ModelProviderEnum.OpenAI, modelId: 'manual-only', nickname: 'Manual Only' },
-    ])
+    expect(await getAvailableImageModels(settings)).toContainEqual({
+      provider: ModelProviderEnum.OpenAI,
+      modelId: 'manual-only',
+      nickname: 'Manual Only',
+    })
   })
 
   it('omits OpenAI image models when OAuth is active', async () => {
@@ -210,7 +187,7 @@ describe('image model catalog', () => {
     expect(getModelManifestMock).not.toHaveBeenCalled()
   })
 
-  it('falls back to the Chatbox manifest when OpenRouter image model discovery fails', async () => {
+  it('falls back to manually configured models when OpenRouter image model discovery fails', async () => {
     const settings = createSettings()
     settings.providers = {
       [ModelProviderEnum.OpenRouter]: {
@@ -219,17 +196,11 @@ describe('image model catalog', () => {
       },
     }
     fetchOpenRouterImageModelsMock.mockRejectedValue(new Error('offline'))
-    getModelManifestMock.mockResolvedValue(manifest([{ modelId: 'fallback-image', modelName: 'Fallback Image' }]))
 
     await expect(getAvailableImageModels(settings)).resolves.toEqual([
-      { provider: ModelProviderEnum.OpenRouter, modelId: 'fallback-image', nickname: 'Fallback Image' },
       { provider: ModelProviderEnum.OpenRouter, modelId: 'manual-image', nickname: 'Manual Image' },
     ])
-    expect(getModelManifestMock).toHaveBeenCalledWith({
-      aiProvider: ModelProviderEnum.OpenRouter,
-      language: settings.language,
-      licenseKey: undefined,
-    })
+    expect(getModelManifestMock).not.toHaveBeenCalled()
   })
 
   it('includes manually marked image models from custom OpenAI-compatible providers', async () => {
@@ -277,11 +248,11 @@ describe('image model catalog', () => {
         oauth: { accessToken: 'oauth-token' },
       },
     }
-    getModelManifestMock.mockResolvedValue(manifest([{ modelId: 'gpt-image-2', modelName: 'GPT Image 2' }]))
-
-    await expect(getAvailableImageModels(settings)).resolves.toEqual([
-      { provider: ModelProviderEnum.OpenAI, modelId: 'gpt-image-2', nickname: 'GPT Image 2' },
-    ])
+    expect(await getAvailableImageModels(settings)).toContainEqual({
+      provider: ModelProviderEnum.OpenAI,
+      modelId: 'gpt-image-1.5',
+      nickname: 'GPT Image 1.5',
+    })
   })
 })
 

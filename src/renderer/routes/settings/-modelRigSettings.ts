@@ -1,5 +1,4 @@
 import type { Settings } from '@shared/types'
-import { ModelProviderEnum } from '@shared/types'
 import type { DocumentParserType } from '@shared/types/settings'
 import type { WebSearchProviderValue } from '@/packages/web-search/constants'
 
@@ -30,14 +29,6 @@ export type ModelSlotId = (typeof MODEL_SLOTS)[number]
 export const SEARCH_CUSTOM_FALLBACK: WebSearchProviderValue = 'bing'
 export const PARSER_CUSTOM_FALLBACK: DocumentParserType = 'local'
 
-export function isChatboxProvider(provider?: string) {
-  return provider === ModelProviderEnum.ChatboxAI
-}
-
-export function isAutoOrChatbox(ref?: ModelRef) {
-  return !ref || isChatboxProvider(ref.provider)
-}
-
 export function modelRefsEqual(a?: ModelRef, b?: ModelRef) {
   if (!a && !b) return true
   if (!a || !b) return false
@@ -52,7 +43,7 @@ export function effectiveParserType(settings: Settings, platformDefault: Documen
 
 export function customParserTypes(host: { isDesktopLike: boolean; isMobile: boolean }): DocumentParserType[] {
   const types: DocumentParserType[] = []
-  if (host.isDesktopLike || host.isMobile) types.push('local')
+  types.push('local')
   if (host.isDesktopLike) types.push('mineru')
   types.push('deepseek')
   return types
@@ -66,21 +57,21 @@ export function isSlotPresetOn(
 ): boolean {
   switch (slotId) {
     case 'llm':
-      return isAutoOrChatbox(settings.defaultChatModel)
+      return !settings.defaultChatModel
     case 'fast':
-      return isAutoOrChatbox(settings.threadNamingModel)
+      return !settings.threadNamingModel
     case 'ocr':
-      return isAutoOrChatbox(settings.ocrModel)
+      return !settings.ocrModel
     case 'embedding':
-      return isAutoOrChatbox(settings.defaultEmbeddingModel)
+      return !settings.defaultEmbeddingModel
     case 'rerank':
-      return isAutoOrChatbox(settings.defaultRerankModel)
+      return !settings.defaultRerankModel
     case 'parser':
-      return effectiveParserType(settings, parserDefault) === 'chatbox-ai'
+      return effectiveParserType(settings, parserDefault) === parserDefault
     case 'search':
-      return (settings.extension?.webSearch?.provider ?? 'build-in') === 'build-in'
+      return (settings.extension?.webSearch?.provider ?? 'bing') === 'bing'
     case 'image':
-      return !picture || isChatboxProvider(picture.provider)
+      return !picture
     case 'asr':
     case 'tts':
       return false
@@ -118,7 +109,7 @@ export function settingsPatchForModelSlot(slotId: ModelSlotId, selection: ModelR
 }
 
 export function searchProvider(settings: Settings): WebSearchProviderValue {
-  return (settings.extension?.webSearch?.provider ?? 'build-in') as WebSearchProviderValue
+  return (settings.extension?.webSearch?.provider ?? 'bing') as WebSearchProviderValue
 }
 
 export function applyAllPresetsSettings(): Pick<
@@ -145,11 +136,11 @@ export function applyAllPresetsExtension(settings: Settings): Settings['extensio
     ...settings.extension,
     documentParser: {
       ...settings.extension.documentParser,
-      type: 'chatbox-ai',
+      type: 'local',
     },
     webSearch: {
       ...settings.extension.webSearch,
-      provider: 'build-in',
+      provider: 'bing',
     },
   }
 }
@@ -190,12 +181,6 @@ export function describeError(error: unknown): { error: string; fix: string } {
     return {
       error: 'Connection timed out',
       fix: 'Check the network and the provider endpoint, or choose another model.',
-    }
-  }
-  if (/license|activate chatbox/i.test(msg)) {
-    return {
-      error: 'Chatbox AI is not activated',
-      fix: 'Activate Chatbox AI in Chatbox AI settings, or use your own model.',
     }
   }
   return {

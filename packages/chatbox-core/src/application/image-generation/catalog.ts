@@ -98,7 +98,6 @@ export function getConfiguredImageProviders(
 ): ImageModelProvider[] {
   return providers.filter((provider) => {
     if (provider.isCustom) return Boolean(settings.providers?.[provider.id]?.models?.length)
-    if (provider.id === ModelProviderEnum.ChatboxAI) return Boolean(settings.licenseKey)
     if (
       ![ModelProviderEnum.OpenAI, ModelProviderEnum.Gemini, ModelProviderEnum.OpenRouter].includes(
         provider.id as ModelProviderEnum
@@ -127,11 +126,7 @@ export function buildImageModelGroups(options: {
           .filter((model) => model.type === 'image')
           .map(manualImageModelToOption)
       : []
-    let models = mergeImageModels(remote, manualModels)
-    if (provider.id === ModelProviderEnum.ChatboxAI) {
-      const excluded = new Set(settings.providers?.[provider.id]?.excludedModels ?? [])
-      models = models.filter((model) => !excluded.has(model.modelId))
-    }
+    const models = mergeImageModels(remote, manualModels)
     if (models.length)
       groups.push({
         label: provider.name,
@@ -140,7 +135,6 @@ export function buildImageModelGroups(options: {
         models,
       })
   }
-  add(builtin(ModelProviderEnum.ChatboxAI), remoteModels[ModelProviderEnum.ChatboxAI], false)
   add(builtin(ModelProviderEnum.Gemini), remoteModels[ModelProviderEnum.Gemini])
   for (const provider of providers.filter(
     (provider) => provider.isCustom && provider.type === ModelProviderType.Gemini

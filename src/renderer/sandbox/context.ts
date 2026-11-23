@@ -8,7 +8,6 @@ export async function resolveContextSandbox(options: {
   model: Pick<ModelInterface, 'isSupportToolUse'>
   settings: SessionSettings
   createProvider: () => SandboxProvider | null
-  isPro: () => boolean
 }): Promise<{ sandboxProvider: SandboxProvider | null; canExecuteCode: boolean }> {
   const sandboxProvider = options.enabled ? options.createProvider() : null
   const workingDirectories =
@@ -16,10 +15,9 @@ export async function resolveContextSandbox(options: {
   if (sandboxProvider && workingDirectories.length > 0) {
     sandboxProvider.setExtraWritableDirs(workingDirectories)
   }
-  let canExecuteCode = Boolean(sandboxProvider && options.model.isSupportToolUse('agent'))
-  if (canExecuteCode && sandboxProvider?.type === 'cloud' && !options.isPro()) {
-    canExecuteCode = false
-  }
+  let canExecuteCode = Boolean(
+    sandboxProvider && sandboxProvider.type !== 'cloud' && options.model.isSupportToolUse('agent')
+  )
   if (canExecuteCode && sandboxProvider) {
     canExecuteCode = (await sandboxProvider.checkAvailability()).available
   }

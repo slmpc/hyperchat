@@ -6,7 +6,6 @@ import platform from '@/platform'
 import { createSandboxProvider } from '@/sandbox'
 import { resolveContextSandbox } from '@/sandbox/context'
 import { settingsService } from '@/settings-runtime'
-import * as settingActions from '@/stores/settingActions'
 
 export async function resolveTokenSandboxMode(enabled: boolean, supportsAgent: boolean, settings: SessionSettings) {
   const result = await resolveContextSandbox({
@@ -14,7 +13,6 @@ export async function resolveTokenSandboxMode(enabled: boolean, supportsAgent: b
     model: { isSupportToolUse: () => supportsAgent },
     settings,
     createProvider: createSandboxProvider,
-    isPro: settingActions.isPro,
   })
   return result.canExecuteCode
 }

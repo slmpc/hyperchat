@@ -16,7 +16,6 @@ export interface MobileProductInfoHost {
     ): Promise<Record<string, unknown>>
   }
   getSettings(): Settings
-  refreshAccount(): Promise<boolean>
   getVersion(): Promise<{ installedVersion: string; platform: string }>
   listChats(cursor: number, limit: number, archived: boolean): Promise<SessionMetaPage>
   readChatPage(request: SessionTranscriptRequest): Promise<SessionTranscriptPage | null>
@@ -26,10 +25,6 @@ const commands = [
   'capabilities',
   'help',
   'version',
-  'account status',
-  'account license',
-  'account quota',
-  'account refresh',
   'settings list',
   'settings get <key>',
   'chats list [--limit 10] [--cursor 0] [--archived]',
@@ -37,45 +32,6 @@ const commands = [
   'chats search <query> [--limit 10] [--cursor <nextCursor>] [--archived]',
 ]
 const inputSchema = z.object({ argv: z.array(z.string().max(32000)).min(1).max(16) }).strict()
-
-function account(settings: Settings) {
-  const detail = settings.licenseDetail
-  return {
-    signedIn: settings.licenseActivationMethod === 'login',
-    licenseConfigured: Boolean(settings.licenseKey),
-    activationMethod: settings.licenseActivationMethod ?? 'none',
-    hasExpiredLicense: Boolean(settings.hasExpiredLicense),
-    plan: detail
-      ? { name: detail.name, plan: detail.plan, status: detail.status, expiresAt: detail.expires_at }
-      : undefined,
-    quota: detail
-      ? {
-          unifiedTokens: {
-            used: detail.unified_token_usage,
-            total: detail.unified_token_limit,
-            remainingPercentage: Number(
-              (
-                100 *
-                Math.min(
-                  1,
-                  Math.max(
-                    0,
-                    detail.unified_token_limit > 0
-                      ? 1 - detail.unified_token_usage / detail.unified_token_limit
-                      : detail.remaining_quota_unified
-                  )
-                )
-              ).toFixed(1)
-            ),
-            nextRefreshTime: detail.token_next_refresh_time,
-            expireTime: detail.token_expire_time,
-          },
-          expansionPack: { used: detail.expansion_pack_usage, total: detail.expansion_pack_limit },
-          image: { used: detail.image_used_count, total: detail.image_total_quota },
-        }
-      : undefined,
-  }
-}
 
 function safeSettings(settings: Settings) {
   return {
@@ -150,7 +106,7 @@ function integer(value: string, max = 10_000_000) {
 export function buildMobileProductInfoTool(host: MobileProductInfoHost, signal: AbortSignal, sessionId?: string) {
   return tool({
     description:
-      'Read Chatbox account/quota, allowlisted settings and local conversation history. Controlled virtual CLI, not a shell. Use argv ["capabilities"] for commands. Use capabilities to discover available operations. Image generation requires user confirmation when supported. Settings writes are unsupported.',
+      'Read allowlisted settings and local conversation history. Controlled virtual CLI, not a shell. Use argv ["capabilities"] for commands. Use capabilities to discover available operations. Image generation requires user confirmation when supported. Settings writes are unsupported.',
     inputSchema,
     execute: async (input, options) => {
       const currentSignal = options.abortSignal ?? signal
@@ -179,22 +135,6 @@ export function buildMobileProductInfoTool(host: MobileProductInfoHost, signal: 
           })
         }
         if (domain === 'version' && argv.length === 1) return await host.getVersion()
-        if (domain === 'account' && argv.length === 2 && ['status', 'license', 'quota', 'refresh'].includes(action)) {
-          const refreshed = action === 'refresh' ? await host.refreshAccount() : undefined
-          throwIfWorkAborted(currentSignal)
-          const status = account(host.getSettings())
-          if (action === 'quota')
-            return { cached: true, quota: status.quota, licenseConfigured: status.licenseConfigured }
-          if (action === 'license') {
-            const { quota: _quota, ...license } = status
-            return license
-          }
-          return {
-            ...status,
-            cached: action !== 'refresh' || !refreshed,
-            ...(action === 'refresh' ? { refreshed } : {}),
-          }
-        }
         if (domain === 'settings') {
           const settings = safeSettings(host.getSettings())
           const location = 'Chatbox Settings'
@@ -324,7 +264,7 @@ export function buildMobileProductInfoTool(host: MobileProductInfoHost, signal: 
       } catch {
         throwIfWorkAborted(currentSignal)
         return {
-          error: 'Command failed. Check capabilities and arguments, or retry when account/storage access is available.',
+          error: 'Command failed. Check capabilities and arguments, or retry when storage access is available.',
         }
       }
     },

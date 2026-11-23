@@ -44,19 +44,16 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { trackAgentModeSelect, trackSmartSwitchingClick, trackWebSearchClick } from '@/analytics/agent-mode'
-import { rendererApplication } from '@/app/renderer-application'
 import { AppTooltip as Tooltip } from '@/components/ui/tooltip'
 import { useKnowledgeBases } from '@/hooks/knowledge-base'
 import { useMCPServerStatus, useToggleMCPServer } from '@/hooks/mcp'
 import { useSessionPresentation } from '@/hooks/useSessionPresentation'
 import { GLASS_SURFACE_CLASS, GLASS_TINT_CLASS } from '@/lib/glass-surface'
 import { navigateToSettings } from '@/modals/settings-navigation'
-import { BUILTIN_MCP_SERVERS } from '@/packages/mcp/builtin'
 import { skillsController, subscribeSkillsChanged } from '@/packages/skills/controller'
 import { getWebSearchConfigurationIssue } from '@/packages/web-search/configuration-issue'
 import { WEB_SEARCH_PROVIDERS, type WebSearchProviderValue } from '@/packages/web-search/constants'
 import platform from '@/platform'
-import { useAutoValidate } from '@/stores/premiumActions'
 import { setSessionAgentMode, useSessionAgentMode } from '@/stores/session/agent-mode'
 import { useMcpSettings, useSettingsStore } from '@/stores/settingsStore'
 import * as toastActions from '@/stores/toastActions'
@@ -254,9 +251,8 @@ const AgentModePanel = forwardRef<AgentModePanelHandle, AgentModePanelProps>(fun
 
   // MCP state
   const mcp = useMcpSettings()
-  const isPremium = useAutoValidate()
   const onMCPEnabledChange = useToggleMCPServer()
-  const enabledMCPCount = mcp.servers.filter((s) => s.enabled).length + mcp.enabledBuiltinServers.length
+  const enabledMCPCount = mcp.servers.filter((s) => s.enabled).length
 
   // Knowledge Base state
   const { data: knowledgeBases } = useKnowledgeBases(featureFlags.knowledgeBase)
@@ -889,21 +885,6 @@ const AgentModePanel = forwardRef<AgentModePanelHandle, AgentModePanelProps>(fun
         <>
           <SubPanelHeader title="MCP" settingsPath="/mcp" disabled={workModeCapabilitiesDisabled} />
           <Divider my={4} />
-          {isPremium && (
-            <>
-              {BUILTIN_MCP_SERVERS.map((server) => (
-                <MCPServerItem
-                  key={server.id}
-                  id={server.id}
-                  name={server.name}
-                  enabled={mcp.enabledBuiltinServers.includes(server.id)}
-                  disabled={workModeCapabilitiesDisabled}
-                  onEnabledChange={onMCPEnabledChange}
-                />
-              ))}
-              {mcp.servers.length > 0 && <Divider my={4} />}
-            </>
-          )}
           {mcp.servers.map((server) => (
             <MCPServerItem
               key={server.id}
@@ -914,7 +895,7 @@ const AgentModePanel = forwardRef<AgentModePanelHandle, AgentModePanelProps>(fun
               onEnabledChange={onMCPEnabledChange}
             />
           ))}
-          {!mcp.servers.length && !mcp.enabledBuiltinServers.length && (
+          {!mcp.servers.length && (
             <Group justify="center" py="md">
               <Button
                 size="xs"
@@ -1102,13 +1083,11 @@ const AgentModePanel = forwardRef<AgentModePanelHandle, AgentModePanelProps>(fun
               }
               label={t('Web Search')}
               subtitle={
-                webSearchConfigurationIssue === 'chatbox-ai-sign-in'
-                  ? (t('Sign in required') ?? undefined)
-                  : webSearchConfigurationIssue
-                    ? (t('Setup required') ?? undefined)
-                    : webBrowsingMode
-                      ? webSearchProviderLabel
-                      : undefined
+                webSearchConfigurationIssue
+                  ? (t('Setup required') ?? undefined)
+                  : webBrowsingMode
+                    ? webSearchProviderLabel
+                    : undefined
               }
               danger={Boolean(webSearchConfigurationIssue)}
               active={page === 'web-search'}
@@ -1161,23 +1140,16 @@ const AgentModePanel = forwardRef<AgentModePanelHandle, AgentModePanelProps>(fun
                 <IconAlertCircle size={14} color="var(--chatbox-tint-error)" className="mt-0.5 shrink-0" />
                 <Stack gap={3} className="min-w-0">
                   <Text size="xs" c="chatbox-secondary" className="leading-snug">
-                    {webSearchConfigurationIssue === 'chatbox-ai-sign-in'
-                      ? t('Chatbox AI Search needs sign-in. Web Search will be skipped while this setting is on.')
-                      : t('The selected Web Search provider needs to be configured before it can run.')}
+                    {t('The selected Web Search provider needs to be configured before it can run.')}
                   </Text>
                   <UnstyledButton
                     className="w-fit text-xs font-semibold text-[var(--chatbox-tint-brand)]"
                     onClick={() => {
                       onClose()
-                      navigateToSettings(
-                        webSearchConfigurationIssue === 'chatbox-ai-sign-in' ? undefined : '/web-search'
-                      )
+                      navigateToSettings('/web-search')
                     }}
                   >
-                    {webSearchConfigurationIssue === 'chatbox-ai-sign-in'
-                      ? t('Sign in to Chatbox AI')
-                      : t('Open Web Search settings')}{' '}
-                    →
+                    {t('Open Web Search settings')} →
                   </UnstyledButton>
                 </Stack>
               </Flex>

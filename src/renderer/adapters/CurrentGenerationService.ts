@@ -59,7 +59,6 @@ import {
   trackGenerateEvent,
 } from '@/stores/session/utils'
 import { markSessionReplyCompleted, markSessionReplyFailed } from '@/stores/sessionActivityStore'
-import * as settingActions from '@/stores/settingActions'
 import { uiStore } from '@/stores/uiStore'
 import { trackEvent } from '@/utils/track'
 import { CurrentAttachmentAdapter } from './CurrentAttachmentAdapter'
@@ -154,10 +153,7 @@ async function buildToolsForPausedToolCall(
   if (sandboxProvider && userWorkingDirectories.length > 0) {
     sandboxProvider.setExtraWritableDirs(userWorkingDirectories)
   }
-  let canExecuteCode = Boolean(sandboxProvider && model.isSupportToolUse('agent'))
-  if (canExecuteCode && sandboxProvider?.type === 'cloud' && !settingActions.isPro()) {
-    canExecuteCode = false
-  }
+  let canExecuteCode = Boolean(sandboxProvider && sandboxProvider.type !== 'cloud' && model.isSupportToolUse('agent'))
   if (canExecuteCode && sandboxProvider) {
     const availability = await sandboxProvider.checkAvailability()
     if (!availability.available) {
@@ -306,7 +302,6 @@ const dependencies: GenerationServiceDependencies<ModelDependencies> = {
           },
           persistSessionPromptContextSnapshot: persistSnapshot,
         },
-        isPro: settingActions.isPro,
       })
       return {
         promptMessages: prepared.promptMsgs,

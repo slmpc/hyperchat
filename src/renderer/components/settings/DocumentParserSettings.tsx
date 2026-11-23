@@ -14,17 +14,14 @@ const ALL_PARSER_OPTIONS: {
   desktopOnly?: boolean
 }[] = [
   { value: 'local', label: 'Local' },
-  { value: 'chatbox-ai', label: 'Chatbox AI' },
   { value: 'mineru', label: 'MinerU', desktopOnly: true }, // Only available on desktop (requires IPC)
   { value: 'deepseek', label: 'DeepSeek' },
 ]
 
 const PARSER_DESCRIPTIONS: Record<DocumentParserType, string> = {
-  none: 'Only supports basic text files (.txt, .md, .json, code files, etc.). For PDF and Office files, please switch to Chatbox AI.',
-  local:
-    'Uses built-in document parsing feature, supports common file types, and consumes no compute points. If local parsing fails, Chatbox AI cloud parsing will be used when a license is available and compute points will be consumed.',
-  'chatbox-ai':
-    'Tries local parsing first without consuming compute points. If local parsing fails, Chatbox AI cloud parsing will be used and compute points will be consumed.',
+  none: 'Only supports basic text files (.txt, .md, .json, code files, etc.).',
+  local: 'Uses built-in document parsing feature, supports common file types.',
+  'chatbox-ai': '',
   mineru: 'Third-party cloud parsing service, supports PDF and most Office files. Requires API token.',
   deepseek:
     'DeepSeek OCR reads PDF, Word, PowerPoint and image files; other files are parsed locally. Uses the API key configured for the DeepSeek model provider and is billed by DeepSeek per page.',
@@ -44,7 +41,6 @@ export function DocumentParserSettings() {
     const isDesktop = platform.type === 'desktop'
     return ALL_PARSER_OPTIONS.filter((opt) => {
       if (opt.desktopOnly && !isDesktop) return false
-      if (opt.value === 'local' && !isDesktop && platform.type !== 'mobile') return false
       return true
     })
   }, [])
@@ -57,13 +53,7 @@ export function DocumentParserSettings() {
       <SettingRow
         id="parser-type"
         label={t('Parser Type')}
-        description={
-          currentParserType === 'local' && platform.type === 'mobile'
-            ? t(
-                'Parses text, DOCX, XLSX, and PPTX files locally first (Office files up to 10 MB). If local parsing fails, Chatbox AI cloud parsing will be used when a license is available and compute points will be consumed.'
-              )
-            : t(PARSER_DESCRIPTIONS[currentParserType])
-        }
+        description={t(PARSER_DESCRIPTIONS[currentParserType])}
         controlLayout="block"
         control={(fieldId) => (
           <AdaptiveSelect

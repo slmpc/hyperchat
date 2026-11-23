@@ -1,10 +1,9 @@
 import { MAX_CHAT_IMAGE_ATTACHMENTS } from '@chatbox/core/application/attachments'
-import { listPendingPauseInteractions } from '@chatbox/core/message-approval'
 import { getSubmitAvailability } from '@chatbox/core/session/action-gates'
 import { isActionAvailableInMode, resolveSessionMode } from '@chatbox/core/session/mode-policy'
 import NiceModal from '@ebay/nice-modal-react'
 import { autoUpdate, computePosition, flip, offset, shift, size } from '@floating-ui/dom'
-import { ActionIcon, Box, Button, Flex, Loader, Menu, Stack, Text, Textarea, UnstyledButton } from '@mantine/core'
+import { ActionIcon, Box, Button, Flex, Loader, Menu, Stack, Text, UnstyledButton } from '@mantine/core'
 import { useViewportSize } from '@mantine/hooks'
 import { TestId } from '@shared/automation/testids'
 import {
@@ -32,7 +31,7 @@ import {
 } from '@tabler/icons-react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtom } from 'jotai'
 import { pick } from 'lodash'
 import type React from 'react'
 import {
@@ -147,7 +146,6 @@ import TokenCountMenu from './TokenCountMenu'
 import { useModelToolCapabilities } from './useModelToolCapabilities'
 import { useReasoningControlState } from './useReasoningControlState'
 import { useThreadCreation } from './useThreadCreation'
-import { WebSearchUnavailableBanner } from './WebSearchUnavailableBanner'
 import WorkModeStatusRow from './WorkModeStatusRow'
 
 export type InputBoxPayload = {
@@ -715,18 +713,12 @@ const InputBox = forwardRef<InputBoxRef, InputBoxProps>(
       [agentModeEntry, model, modelSupportsAgentMode]
     )
 
-    const licenseKey = useSettingsStore((state) => state.licenseKey)
-    const licenseDetail = useSettingsStore((state) => state.licenseDetail)
-    const licensePlanName = useSettingsStore((state) => state.licensePlanName)
     const sandboxQuery = useQuery({
       queryKey: [
         'token-estimation-sandbox',
         agentModeEntry.value,
         modelSupportsAgentMode,
         currentSessionMergedSettings?.workingDirectories,
-        licenseKey,
-        licenseDetail,
-        licensePlanName,
       ],
       queryFn: () =>
         resolveTokenSandboxMode(
@@ -1604,13 +1596,6 @@ const InputBox = forwardRef<InputBoxRef, InputBoxProps>(
         <input className="hidden" {...getInputProps()} />
         <Stack className={cn('overflow-visible', paddedContentColumnClassName(widthFull))} gap="xs">
           {currentSessionId && <CompactionStatus sessionId={currentSessionId} />}
-          {!isNewSession && headerRead && (
-            <WebSearchUnavailableBanner
-              sessionId={headerRead.header.id}
-              errorCount={headerRead.summary.webSearchSignInErrorCount}
-              latestHasError={controls.data?.latestMessageHasWebSearchSignInError}
-            />
-          )}
           {currentSessionId && !isNewSession && <QueuedMessagesBar sessionId={currentSessionId} />}
           {currentSession && !isNewSession && (
             <ErrorBoundary name="pending-action-bar">

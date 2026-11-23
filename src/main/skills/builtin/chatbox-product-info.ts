@@ -4,13 +4,13 @@ import type { SkillMetadata } from '../../../shared/types/skills'
 export const metadata: SkillMetadata = {
   name: 'chatbox-product-info',
   description:
-    'Chatbox product specialist and app operator. Use for product documentation and pricing, account and quota status, read-only settings, conversation history, image generation, authentication, developer docs, or MCP access.',
+    'Chatbox product specialist and app operator. Use for client documentation, read-only settings, conversation history, image generation, developer docs, or MCP access.',
 }
 
 export const body = `
 # Chatbox Product Information
 
-Use this skill when the user asks about Chatbox AI product capabilities, subscriptions, paid plans, license management, billing, authentication, developer APIs, MCP access, local Chatbox settings, conversation history, or image generation.
+Use this skill when the user asks about client capabilities, developer APIs, MCP access, local Chatbox settings, conversation history, or image generation.
 
 ${CHATBOX_PRODUCT_SOURCES}
 
@@ -18,13 +18,11 @@ ${CHATBOX_PRODUCT_SOURCES}
 
 - \`chatbox_cli\` is a controlled in-app virtual CLI, not a shell. Never pass its commands to \`user_exec\`.
 - Prefer structured \`argv\` over a command string. Start with \`["capabilities"]\` or \`["help", "<domain>"]\` when command details are unclear.
-- Before using settings, chats, or image commands, call \`["capabilities"]\` once. If the installed client reports that command as unsupported, do not try newer commands; explain that a client upgrade is required. Legacy account commands remain available.
+- Before using settings, chats, or image commands, call \`["capabilities"]\` once. If the installed client reports that command as unsupported, do not try newer commands; explain that a client upgrade is required.
 - Command hierarchy:
-  - Account: \`["account", "status"]\`, \`["account", "license"]\`, \`["account", "quota"]\`, \`["account", "refresh"]\`, \`["version"]\`.
   - Settings: \`["settings", "list"]\`, \`["settings", "get", "<key>"]\`.
   - Chats: \`["chats", "list"]\`, \`["chats", "search", "<query>"]\`, \`["chats", "read", "<session-id>"]\`.
   - Images: \`["image", "models"]\`, \`["image", "generate", "--prompt", "<prompt>"]\`, \`["image", "status", "<record-id>"]\`, \`["image", "history"]\`.
-- Use account refresh when the user asks for current remaining quota or current license state.
 - Conversation list/search/read are local read-only operations and do not require approval. Keep results focused; use cursors and small limits instead of dumping whole histories.
 - Settings are exposed through a read-only allowlist and do not require approval. When the user asks to change a setting, use list/get if needed to identify its current value and returned Settings location, then guide the user to change it manually in Chatbox Settings. Never claim the setting changed and never use another tool to bypass this restriction.
 - Image generation is asynchronous and potentially billable, so starting it pauses for explicit user approval. Chatbox renders a localized image-specific approval card with the provider, model, prompt, image count, and billing/quota guidance. The command returns a record id after approval and continues in the background.

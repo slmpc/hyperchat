@@ -343,7 +343,7 @@ const ShortcutSettingSchema = z.preprocess(
 
 const ExtensionSettingsSchema = z.object({
   webSearch: z.object({
-    provider: z.enum(['build-in', 'bing', 'deepseek', 'tavily', 'bocha', 'querit', 'searxng']).catch('build-in'),
+    provider: z.enum(['bing', 'deepseek', 'tavily', 'bocha', 'querit', 'searxng']).catch('bing'),
     tavilyApiKey: z.string().optional(),
     bochaApiKey: z.string().optional(),
     queritApiKey: z.string().optional(),
@@ -611,7 +611,7 @@ export const SettingsSchema = GlobalSessionSettingsSchema.extend({
   pauseOnToolCallLimit: z.boolean().default(true),
 
   autoLaunch: z.boolean().default(false),
-  autoUpdate: z.boolean().default(true), // 是否自动检查更新
+  autoUpdate: z.boolean().default(false), // 是否自动检查更新
   betaUpdate: z.boolean().default(false), // 是否自动检查 beta 更新
 
   shortcuts: ShortcutSettingSchema,

@@ -5,47 +5,11 @@ export { SessionHeaderSchema } from '@shared/types'
 export { getChatboxAPIOrigin } from '@shared/request/chatbox-api-origin'
 export { type ApiOriginsStorage, startChatboxAPIOriginProbing } from '@shared/request/chatboxai_pool'
 export {
-  licenseActivationSettings,
-  licenseDeactivationSettings,
-  prepareLicenseActivation,
-} from '@shared/services/license-activation'
-export {
-  fetchNativeAccountLicenses,
-  fetchNativeAccountProfile,
-  fetchNativeChatboxAIModelCatalog,
-  fetchNativeChatboxAIModels,
-  generateNativeWebAuthToken,
-  loginNativeEmailCode,
-  type NativeAccountLicense,
-  type NativeAccountProfile,
-  type NativeAccountRequestOptions,
-  type NativeAccountTokens,
-  type NativeChatboxAIModelCatalog,
-  type NativeChatboxAIModelDetail,
-  refreshNativeAccountTokens,
-  sendNativeEmailLoginCode,
-} from '@shared/services/native-account'
-export {
-  type NativeDocumentParserFile,
-  type NativeDocumentParserRequestOptions,
-  parseNativeChatboxAIDocument,
-} from '@shared/services/native-document-parser'
-export {
   DEEPSEEK_OCR_MAX_FILE_SIZE,
   getDeepSeekParserErrorCode,
   isDeepSeekOcrFile,
   recognizeDocumentWithDeepSeek,
 } from '@shared/services/deepseek-ocr'
-export {
-  activateNativeLicense,
-  deactivateNativeLicense,
-  fetchNativeLicenseDetail,
-  fetchNativeLicenseInspection,
-  type NativeLicenseActivationResult,
-  type NativeLicenseDetailResult,
-  type NativeLicenseRequestOptions,
-  validateNativeLicense,
-} from '@shared/services/native-license'
 export {
   type ReportNativeContentOptions,
   reportNativeContent,

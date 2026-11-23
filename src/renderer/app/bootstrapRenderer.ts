@@ -1,9 +1,7 @@
 /// <reference types="vite/client" />
 
-import { startChatboxAPIOriginProbing } from '@shared/request/chatboxai_pool'
 import type { Settings } from '@shared/types'
 import { getDefaultStore } from 'jotai'
-import localforage from 'localforage'
 import i18n from '@/i18n'
 import { getLogger } from '@/lib/utils'
 import { sessionStartupRecovery } from '@/packages/session-startup-recovery'
@@ -21,7 +19,6 @@ import { initLastUsedModelStore } from '@/stores/lastUsedModelStore'
 import * as migration from '@/stores/migration'
 import { getMigrationErrorContext } from '@/stores/migration-error'
 import { initOnboardingStore } from '@/stores/onboardingStore'
-import { initLoginLicenseStateReconciliation } from '@/stores/premiumActions'
 import { initRecentDirectoriesStore } from '@/stores/recentDirectoriesStore'
 import { isSessionGenerating } from '@/stores/sessionActivityStore'
 import { initSettingsStore } from '@/stores/settingsStore'
@@ -46,15 +43,6 @@ function isSessionWorkInFlight(): boolean {
 /** Runs the pre-render migration and telemetry phase in its historical order. */
 export async function initializeRenderer(): Promise<void> {
   log.info('initializeApp')
-  const apiOriginStore = localforage.createInstance({ name: 'chatboxcache' })
-  startChatboxAPIOriginProbing({
-    storage: {
-      get: (key) => apiOriginStore.getItem(key),
-      set: async (key, value) => {
-        await apiOriginStore.setItem(key, value)
-      },
-    },
-  })
   await (await import('./renderer-backup')).rendererBackupService.cleanupBeforeBootstrap()
 
   let migrationError: unknown
@@ -100,7 +88,6 @@ export async function bootstrapRenderer(application: RendererApplication): Promi
   ])
 
   void i18n.changeLanguage(settings.language)
-  initLoginLicenseStateReconciliation()
 
   const startMigration = () =>
     startSessionMigrationTrickle({

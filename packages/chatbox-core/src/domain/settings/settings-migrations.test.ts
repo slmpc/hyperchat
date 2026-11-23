@@ -64,7 +64,7 @@ describe('settings migrations', () => {
       },
     })
     expect(migrated.skills.translationEnabled).toBe(true)
-    expect(migrated.extension.documentParser).toEqual({ type: 'chatbox-ai' })
+    expect(migrated.extension.documentParser).toEqual({ type: 'local' })
   })
 
   test('moves the version 7 default compaction threshold to the current default and keeps chosen values', () => {
@@ -254,7 +254,7 @@ describe('settings migrations', () => {
       },
       extension: {
         ...defaults.extension,
-        documentParser: version <= 4 ? { type: 'chatbox-ai' } : { type: 'none' },
+        documentParser: version <= 4 ? { type: 'local' } : { type: 'none' },
       },
     }
 

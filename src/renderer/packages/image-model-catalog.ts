@@ -15,7 +15,6 @@ import {
 } from '@shared/types'
 import { queryOptions } from '@tanstack/react-query'
 import { getLogger } from '@/lib/utils'
-import type { RemoteModelInfo } from '@/packages/remote'
 import platform from '@/platform'
 import { queryClient } from '@/stores/queryClient'
 import { settingsStore } from '@/stores/settingsStore'
@@ -30,15 +29,6 @@ export interface AvailableImageModel {
   modelId: string
   nickname: string
   capabilities?: ImageModelCapabilities
-}
-
-export function remoteImageModelToOption(model: RemoteModelInfo): ImageModelOption {
-  return {
-    modelId: model.modelId,
-    displayName: model.modelName || model.modelId,
-    ...(model.description ? { description: model.description } : {}),
-    ...(model.points_per_image !== undefined ? { pointsPerImage: model.points_per_image } : {}),
-  }
 }
 
 export { manualImageModelToOption, mergeImageModels } from '@chatbox/core/application/image-generation'
@@ -63,20 +53,12 @@ function observeCredentials(): void {
     if (apiKey !== previous.providers?.[ModelProviderEnum.OpenRouter]?.apiKey) {
       credentialRevision(ModelProviderEnum.OpenRouter, apiKey)
     }
-    if (settings.licenseKey !== previous.licenseKey) {
-      credentialRevision(ModelProviderEnum.ChatboxAI, settings.licenseKey)
-    }
   })
 }
 
 export function providerImageModelsQueryOptions(provider: ModelProviderEnum, options: ImageModelCatalogOptions = {}) {
   observeCredentials()
-  const revision =
-    provider === ModelProviderEnum.OpenRouter
-      ? credentialRevision(provider, options.apiKey)
-      : provider === ModelProviderEnum.ChatboxAI
-        ? credentialRevision(provider, options.licenseKey)
-        : 0
+  const revision = provider === ModelProviderEnum.OpenRouter ? credentialRevision(provider, options.apiKey) : 0
   return queryOptions({
     queryKey: ['provider-image-models', provider, options.language, revision],
     staleTime: 3600 * 1000,
@@ -129,7 +111,6 @@ async function loadRemoteModels(provider: ModelProviderEnum, settings: Settings)
       providerImageModelsQueryOptions(provider, {
         apiKey: provider === ModelProviderEnum.OpenRouter ? providerSettings.apiKey : undefined,
         language: settings.language,
-        licenseKey: settings.licenseKey,
       })
     )
   } catch (error) {
@@ -144,23 +125,16 @@ export async function getAvailableImageModels(
 ): Promise<AvailableImageModel[]> {
   const providers = getConfiguredImageProviders(
     [
-      ...[
-        ModelProviderEnum.ChatboxAI,
-        ModelProviderEnum.Gemini,
-        ModelProviderEnum.OpenAI,
-        ModelProviderEnum.OpenRouter,
-      ].map((id) => ({ id, name: id })),
+      ...[ModelProviderEnum.Gemini, ModelProviderEnum.OpenAI, ModelProviderEnum.OpenRouter].map((id) => ({
+        id,
+        name: id,
+      })),
       ...(settings.customProviders ?? []),
     ],
     settings,
     platform.type
   )
-  const remoteProviders = [
-    ModelProviderEnum.ChatboxAI,
-    ModelProviderEnum.Gemini,
-    ModelProviderEnum.OpenAI,
-    ModelProviderEnum.OpenRouter,
-  ].filter(
+  const remoteProviders = [ModelProviderEnum.Gemini, ModelProviderEnum.OpenAI, ModelProviderEnum.OpenRouter].filter(
     (id) =>
       (id !== ModelProviderEnum.OpenAI || isOpenAIImageGenerationAuthSupported(settings.providers)) &&
       providers.some(

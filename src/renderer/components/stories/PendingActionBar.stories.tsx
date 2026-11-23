@@ -67,14 +67,12 @@ const imageApprovalPart: MessageToolCallPart = {
     preview: '猎鹰 9 号夜间发射，长曝光轨迹',
     details: {
       type: 'image_generation',
-      provider: 'chatbox-ai',
+      provider: 'openai',
       modelId: 'gpt-image-1',
       prompt: '猎鹰 9 号夜间发射，长曝光轨迹',
       count: 2,
       aspectRatio: '16:9',
-      billing: 'chatbox_quota',
-      imageQuota: { remaining: 48, total: 200 },
-      computePointsRemainingRatio: 0.62,
+      billing: 'provider',
     },
   },
 } as MessageToolCallPart

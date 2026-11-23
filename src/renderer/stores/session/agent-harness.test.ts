@@ -106,7 +106,6 @@ vi.mock('@/stores/settingActions', () => ({
     webSearch: { provider: 'tavily' },
   }),
   getRemoteConfig: vi.fn().mockResolvedValue({}),
-  isPro: () => true,
 }))
 
 vi.mock('@/packages/user-exec-approval', () => ({
@@ -299,7 +298,6 @@ describe('prepareAgentGenerationHarness', () => {
         agentModeSupported: true,
         signal: new AbortController().signal,
         sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-        isPro: () => true,
       })
       expect(buildTools.mock.calls.at(-1)?.[1].codeExecution?.files).toEqual([seed])
       expect(JSON.stringify(prepared.coreMessages)).toContain('Stored summary')
@@ -346,7 +344,6 @@ describe('prepareAgentGenerationHarness', () => {
       agentModeSupported: true,
       signal: new AbortController().signal,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
       sideEffects: {
         lockAgentMode,
       },
@@ -414,7 +411,6 @@ describe('prepareAgentGenerationHarness', () => {
       agentModeSupported: true,
       signal: new AbortController().signal,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
     })
 
     expect(prepared.debug.effectiveAgentMode).toBe('off')
@@ -464,7 +460,6 @@ describe('prepareAgentGenerationHarness', () => {
       agentModeSupported: true,
       signal: new AbortController().signal,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
       sideEffects: {
         lockAgentMode,
       },
@@ -526,7 +521,6 @@ describe('prepareAgentGenerationHarness', () => {
       agentModeSupported: false,
       signal: new AbortController().signal,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
     })
 
     // No tools registered for this request: the wire must not carry tool blocks.
@@ -574,7 +568,6 @@ describe('prepareAgentGenerationHarness', () => {
       agentModeSupported: true,
       signal: new AbortController().signal,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
     })
 
     // The injected block rides the (coerced) system message, so after the
@@ -614,7 +607,6 @@ describe('prepareAgentGenerationHarness', () => {
       agentModeSupported: true,
       signal: new AbortController().signal,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
     })
 
     // No gap since the conversation start: reminding on every message would be
@@ -667,7 +659,6 @@ describe('prepareAgentGenerationHarness', () => {
       agentModeSupported: true,
       signal: new AbortController().signal,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
     })
 
     // The reminder rides the gapped user turn's tail and freezes that message's
@@ -738,7 +729,6 @@ describe('prepareAgentGenerationHarness', () => {
       agentModeSupported: true,
       signal: new AbortController().signal,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
     })
 
     // The gap reminder re-materializes at the same historical position on every
@@ -777,7 +767,6 @@ describe('prepareAgentGenerationHarness', () => {
       agentModeSupported: true,
       signal: new AbortController().signal,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
     })
 
     expect(prepared.debug.effectiveAgentMode).toBe('off')
@@ -845,7 +834,6 @@ describe('prepareAgentGenerationHarness', () => {
       signal: new AbortController().signal,
       preserveLastPromptMessageToolCalls: true,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
     })
 
     expect(prepared.tools.chatbox_cli).toBeDefined()
@@ -896,7 +884,6 @@ describe('prepareAgentGenerationHarness', () => {
       signal: new AbortController().signal,
       preserveLastPromptMessageToolCalls: true,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
     })
 
     expect(prepared.promptMsgs.some((message) => message.id === 'assistant-1')).toBe(true)
@@ -966,7 +953,6 @@ describe('prepareAgentGenerationHarness', () => {
       signal: new AbortController().signal,
       preserveLastPromptMessageToolCalls: true,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
     })
 
     // The wall clock outran everything in the context (e.g. a tool approval
@@ -1515,7 +1501,6 @@ describe('session prompt context snapshot', () => {
       agentModeSupported: true,
       signal: new AbortController().signal,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
       sideEffects,
     })
   }
@@ -1714,7 +1699,6 @@ describe('session prompt context snapshot', () => {
       agentModeSupported: true,
       signal: new AbortController().signal,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
     })
 
     const serialized = JSON.stringify(prepared.coreMessages)
@@ -1746,7 +1730,6 @@ describe('chat mode memories', () => {
       agentModeSupported: true,
       signal: new AbortController().signal,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
       sideEffects,
     })
   }
@@ -1840,7 +1823,6 @@ describe('chat mode memories', () => {
       agentModeSupported: true,
       signal: new AbortController().signal,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
     })
 
     expect(prepared.tools.save_memory).toBeUndefined()
@@ -1955,7 +1937,6 @@ describe('chat mode memories', () => {
       agentModeSupported: true,
       signal: new AbortController().signal,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
       sideEffects: { persistSessionPromptContextSnapshot },
     })
 
@@ -2100,7 +2081,6 @@ describe('injectDefaultMetadata setting', () => {
       agentModeSupported: true,
       signal: new AbortController().signal,
       sandboxProviderFactory: () => sandboxProviderMock as unknown as SandboxProvider,
-      isPro: () => true,
     })
   }
 

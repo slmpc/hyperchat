@@ -15,7 +15,6 @@ import {
 } from './catalog'
 
 const providers: ImageModelProvider[] = [
-  { id: ModelProviderEnum.ChatboxAI, name: 'Chatbox AI' },
   { id: ModelProviderEnum.OpenAI, name: 'OpenAI' },
   { id: ModelProviderEnum.Gemini, name: 'Gemini' },
   { id: ModelProviderEnum.OpenRouter, name: 'OpenRouter' },
@@ -95,10 +94,9 @@ describe('shared image catalog', () => {
     ])
   })
 
-  it('preserves Web grouping, Chatbox exclusions, and custom Gemini inheritance', () => {
+  it('preserves Web grouping and custom Gemini inheritance', () => {
     const settings = defaultSettings()
     settings.providers = {
-      'chatbox-ai': { excludedModels: ['hidden'] },
       gemini: { models: [{ modelId: 'gemini-image', nickname: 'Manual name', type: 'image' }] },
       'custom-gemini': { models: [{ modelId: 'own', type: 'image' }] },
       'custom-responses': { models: [{ modelId: 'responses-image', type: 'image' }, { modelId: 'chat' }] },
@@ -108,27 +106,21 @@ describe('shared image catalog', () => {
       settings,
       platform: 'mobile',
       remoteModels: {
-        'chatbox-ai': [
-          { modelId: 'hidden', displayName: 'Hidden' },
-          { modelId: 'visible', displayName: 'Visible' },
-        ],
         gemini: [{ modelId: 'gemini-image', displayName: 'Remote Gemini' }],
         openai: [{ modelId: 'openai-image', displayName: 'OpenAI' }],
         openrouter: [{ modelId: 'router-image', displayName: 'OpenRouter', capabilities }],
       },
     })
     expect(groups.map((group) => group.providerId)).toEqual([
-      'chatbox-ai',
       'gemini',
       'custom-gemini',
       'openai',
       'openrouter',
       'custom-responses',
     ])
-    expect(groups[0]?.models.map((model) => model.modelId)).toEqual(['visible'])
-    expect(groups[1]?.models[0]?.displayName).toBe('Manual name')
-    expect(groups[2]?.models.map((model) => model.modelId)).toEqual(['gemini-image', 'own'])
-    expect(groups[5]?.models.map((model) => model.modelId)).toEqual(['responses-image'])
+    expect(groups[0]?.models[0]?.displayName).toBe('Manual name')
+    expect(groups[1]?.models.map((model) => model.modelId)).toEqual(['gemini-image', 'own'])
+    expect(groups[4]?.models.map((model) => model.modelId)).toEqual(['responses-image'])
   })
 
   it('removes OpenAI image generation while desktop OAuth authentication is active', () => {

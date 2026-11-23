@@ -5,7 +5,6 @@ import { Anchor, Button, Flex, Stack, Text, Title } from '@mantine/core'
 import { TestId } from '@shared/automation/testids'
 import { SystemProviders } from '@shared/defaults'
 import type { ProviderModelInfo } from '@shared/types'
-import { ModelProviderEnum } from '@shared/types'
 import type { DocumentParserType } from '@shared/types/settings'
 import {
   IconAlertTriangle,
@@ -130,7 +129,6 @@ const SLOT_ICONS = {
 } as const
 
 const PARSER_OPTION_LABELS: Record<string, string> = {
-  'chatbox-ai': 'Chatbox AI',
   local: 'Built-in parser',
   mineru: 'MinerU',
   deepseek: 'DeepSeek',
@@ -159,17 +157,7 @@ export function RouteComponent() {
   const [running, setRunning] = useState(false)
   const runningRef = useRef(false)
 
-  const licenseKey = settings.licenseKey
-  const chatboxAIAutoText = licenseKey ? t('Auto (Use Chatbox AI)')! : t('None')!
-
-  const chatboxImageGroups = useMemo(
-    () => imageModelGroups.filter((group) => group.providerId === ModelProviderEnum.ChatboxAI),
-    [imageModelGroups]
-  )
-  const customImageGroups = useMemo(
-    () => imageModelGroups.filter((group) => group.providerId !== ModelProviderEnum.ChatboxAI),
-    [imageModelGroups]
-  )
+  const customImageGroups = imageModelGroups
 
   const pingChat = useCallback(async (provider: string, modelId: string, vision?: boolean) => {
     const configs = await platform.getConfig()
@@ -193,7 +181,6 @@ export function RouteComponent() {
       settings: settingsStore.getState(),
       configuredProviderIds: new Set(providers.map((provider) => provider.id)),
       picture: lastUsedModelStore.getState().picture,
-      hasLicense: Boolean(settingsStore.getState().licenseKey),
       isDesktopLike: platform.isDesktopLike,
       pingChat,
       testMineru: async (token: string) => {
@@ -244,13 +231,7 @@ export function RouteComponent() {
       ...applyAllPresetsSettings(),
       extension: applyAllPresetsExtension(current),
     })
-    const firstChatboxImage = imageModelGroups.find((group) => group.providerId === ModelProviderEnum.ChatboxAI)
-      ?.models[0]
-    if (firstChatboxImage) {
-      setPictureModel(ModelProviderEnum.ChatboxAI, firstChatboxImage.modelId)
-    } else {
-      lastUsedModelStore.setState({ picture: undefined })
-    }
+    lastUsedModelStore.setState({ picture: undefined })
     setResults(idleResults())
   }, [imageModelGroups, setPictureModel, setSettings])
 
@@ -362,10 +343,7 @@ export function RouteComponent() {
                 parser={parser}
                 search={search}
                 picture={picture}
-                chatboxImageGroups={chatboxImageGroups}
                 customImageGroups={customImageGroups}
-                licenseKey={licenseKey}
-                chatboxAIAutoText={chatboxAIAutoText}
                 running={running}
                 onTest={() => void testSlot(slotId)}
                 onSelectModel={(provider, model) => {
@@ -416,7 +394,7 @@ export function RouteComponent() {
           void NiceModal.show('confirm', {
             title: t('Reset model selections?'),
             message: t(
-              'This replaces your selections on this page with automatic models and Chatbox services. Your provider credentials are kept. Some services require Chatbox AI.'
+              'This replaces your selections on this page with automatic models and default tool settings. Your provider credentials are kept.'
             ),
             confirmText: t('Reset selections'),
             cancelText: t('Cancel'),
@@ -439,10 +417,7 @@ function SlotCard(props: {
   parser: DocumentParserType
   search: WebSearchProviderValue
   picture?: { provider: string; modelId: string }
-  chatboxImageGroups: ImageModelGroup[]
   customImageGroups: ImageModelGroup[]
-  licenseKey?: string
-  chatboxAIAutoText: string
   running: boolean
   onTest: () => void
   onSelectModel: (provider?: string, model?: string) => void
@@ -455,7 +430,7 @@ function SlotCard(props: {
   const Icon = SLOT_ICONS[props.slotId]
   const modelSlot = isModelSlot(props.slotId) ? props.slotId : undefined
   const selection = modelSlot ? getSlotModelRef(modelSlot, settings) : undefined
-  const autoText = autoTextForSlot(props.slotId, props.licenseKey, t, props.chatboxAIAutoText)
+  const autoText = autoTextForSlot(props.slotId, t)
   const modelText = displayTextForSlot(props, autoText, t)
 
   return (
@@ -579,7 +554,7 @@ function SlotSelector(
 
   if (props.slotId === 'parser') {
     const options = withCurrentOption(
-      ['chatbox-ai', ...customParserTypes(parserHost())].map((value) => ({
+      customParserTypes(parserHost()).map((value) => ({
         value,
         label: t(PARSER_OPTION_LABELS[value]),
       })),
@@ -601,7 +576,7 @@ function SlotSelector(
   if (props.slotId === 'search') {
     const options = WEB_SEARCH_PROVIDERS.map((item) => ({
       value: item.value,
-      label: item.value === 'build-in' ? t('Chatbox AI Search') : item.label,
+      label: item.label,
     }))
     return (
       <AdaptiveSelect
@@ -616,7 +591,7 @@ function SlotSelector(
   }
 
   if (props.slotId === 'image') {
-    const groups = [...props.chatboxImageGroups, ...props.customImageGroups]
+    const groups = props.customImageGroups
     return (
       <ImageModelSelect
         position="bottom-start"
@@ -718,27 +693,20 @@ function isModelSlot(slotId: ModelRigSlotId): slotId is ModelSlotId {
   return slotId === 'llm' || slotId === 'fast' || slotId === 'ocr' || slotId === 'embedding' || slotId === 'rerank'
 }
 
-function autoTextForSlot(
-  slotId: ModelRigSlotId,
-  licenseKey: string | undefined,
-  t: (key: string) => string,
-  chatboxAIAutoText: string
-) {
+function autoTextForSlot(slotId: ModelRigSlotId, t: (key: string) => string) {
   if (slotId === 'llm') return t('Auto (Use Last Used)')
   if (slotId === 'fast') return t('Auto (Use Chat Model)')
-  if (slotId === 'image') return licenseKey ? t('Chatbox AI / Image model') : t('None')
-  return chatboxAIAutoText
+  return t('None')
 }
 
 function displayTextForSlot(props: Parameters<typeof SlotCard>[0], autoText: string, t: (key: string) => string) {
   if (props.slotId === 'parser') return t(PARSER_OPTION_LABELS[props.parser] || props.parser)
   if (props.slotId === 'search') {
-    if (props.search === 'build-in') return t('Chatbox AI Search')
     return WEB_SEARCH_PROVIDERS.find((item) => item.value === props.search)?.label || props.search
   }
   if (props.slotId === 'image') {
     if (!props.picture) return autoText
-    const groups = [...props.chatboxImageGroups, ...props.customImageGroups]
+    const groups = props.customImageGroups
     const group = groups.find((item) => item.providerId === props.picture?.provider)
     const model = group?.models.find((item) => item.modelId === props.picture?.modelId)
     return `${group?.label || props.picture.provider} / ${model?.displayName || props.picture.modelId}`
@@ -767,13 +735,13 @@ function sourceForSlot(
       ? 'Remote service'
       : parser === 'local'
         ? 'Built-in parsing. Image recognition may use the selected OCR provider.'
-        : 'Uses local parsing where supported, with Chatbox cloud parsing as a fallback.'
+        : 'Uses local parsing where supported.'
   if (slotId === 'search') return 'Search requests are sent to the selected service.'
   if (!provider) return 'Automatic selection follows the defaults for this feature.'
   const endpoint =
     settings.providers?.[provider]?.apiHost ||
     SystemProviders().find((item) => item.id === provider)?.defaultSettings?.apiHost
-  return modelEndpointLocation(endpoint, provider === ModelProviderEnum.ChatboxAI)
+  return modelEndpointLocation(endpoint)
 }
 
 function modelFilterForSlot(slotId: ModelRigSlotId) {

@@ -133,27 +133,6 @@ describe('renderer image-generation facade', () => {
     expect(isGenerating()).toBe(true)
   })
 
-  it('adapts shared requests to current host credentials and forwards the poll signal', async () => {
-    getImageGenerationService()
-    const request = {
-      model: 'image',
-      prompt: 'bird',
-      response_format: 'b64_json' as const,
-      style: 'vivid' as const,
-      quantity: 1,
-    }
-    const signal = new AbortController().signal
-    await mocks.options?.authorizeRequest?.(params, signal, true)
-    expect(mocks.authorize).toHaveBeenCalledWith(params, signal, true)
-    await mocks.options?.asyncClient.submit(request)
-    await mocks.options?.asyncClient.poll('task', signal)
-    expect(mocks.submit).toHaveBeenCalledWith(request, 'license')
-    expect(mocks.poll).toHaveBeenCalledWith('task', 'license', signal)
-    mocks.licenseKey = 'another-license'
-    expect(() => mocks.options?.asyncClient.submit(request)).toThrow('The active license changed')
-    expect(mocks.submit).toHaveBeenCalledOnce()
-  })
-
   it('uses the renderer model factory, storage resolver and current catalog validation', async () => {
     getImageGenerationService()
     await mocks.options?.createModel(params.model)

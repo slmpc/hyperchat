@@ -23,7 +23,6 @@ function fixture() {
   const seeded = repository.seedSession(session)
   const host: MobileProductInfoHost = {
     getSettings: () => settings,
-    refreshAccount: vi.fn(async () => true),
     getVersion: async () => ({ installedVersion: '1.0', platform: 'ios' }),
     listChats: vi.fn(async (cursor) => ({
       items: cursor === 0 ? [{ id: session.id, name: session.name, createdAt: 0, sortOrder: 0 }] : [],
@@ -52,14 +51,6 @@ describe('mobile product info CLI', () => {
     expect(await run(['settings', 'set', 'chat.stream', 'false'])).toHaveProperty('error')
     expect(await run(['image', 'generate'])).toHaveProperty('error')
     expect(await run(['settings', 'get', 'chat.stream'])).toMatchObject({ readOnly: true, value: true })
-  })
-  it('refreshes only on explicit command and contains remote errors', async () => {
-    const { run, host } = fixture()
-    await run(['account', 'quota'])
-    expect(host.refreshAccount).not.toHaveBeenCalled()
-    expect(await run(['account', 'refresh'])).toMatchObject({ refreshed: true, cached: false })
-    vi.mocked(host.refreshAccount).mockRejectedValue(new Error('secret-server-response'))
-    expect(JSON.stringify(await run(['account', 'refresh']))).not.toContain('secret-server-response')
   })
   it('paginates readable messages and search matches without exposing system messages', async () => {
     const { run } = fixture()

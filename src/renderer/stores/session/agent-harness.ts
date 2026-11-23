@@ -101,7 +101,6 @@ export interface PrepareAgentGenerationHarnessOptions {
   attachmentResolver?: AttachmentResolver
   sideEffects?: AgentGenerationSideEffects
   sandboxProviderFactory?: () => SandboxProvider | null
-  isPro?: () => boolean
 }
 
 export interface PreparedAgentGenerationHarness {
@@ -217,7 +216,6 @@ export async function prepareAgentGenerationHarness(
     attachmentResolver = createAttachmentResolver(),
     sideEffects,
     sandboxProviderFactory = createSandboxProvider,
-    isPro = () => true,
   } = options
 
   const allMessages = messages.slice(0, targetMsgIx)
@@ -261,7 +259,6 @@ export async function prepareAgentGenerationHarness(
     model,
     settings,
     createProvider: sandboxProviderFactory,
-    isPro,
   })
 
   const messagesForPrompt = await refreshSessionAttachmentStatuses(

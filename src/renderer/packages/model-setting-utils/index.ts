@@ -1,7 +1,6 @@
 import { getProviderDefinition, getProviderDisplayName, getSystemProviders } from '@shared/providers'
 import {
   type ModelProvider,
-  ModelProviderEnum,
   type ModelProviderType,
   type SessionSettings,
   type SessionType,
@@ -22,7 +21,8 @@ export function getModelSettingUtil(
 }
 
 export function getModelDisplayName(settings: SessionSettings, globalSettings: Settings, sessionType: SessionType) {
-  const provider = settings.provider ?? ModelProviderEnum.ChatboxAI
+  const provider = settings.provider
+  if (!provider) return ''
   const model = settings.modelId ?? ''
 
   const registryProviders = getSystemProviders()
@@ -36,5 +36,5 @@ export function getModelDisplayName(settings: SessionSettings, globalSettings: S
 
 /** Provider display name recorded on a reply generated with these settings. */
 export function getMessageProviderName(settings: SessionSettings, globalSettings: Settings): string | undefined {
-  return getProviderDisplayName(settings.provider ?? ModelProviderEnum.ChatboxAI, globalSettings.customProviders)
+  return settings.provider ? getProviderDisplayName(settings.provider, globalSettings.customProviders) : undefined
 }

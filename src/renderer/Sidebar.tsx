@@ -7,7 +7,6 @@ import {
   IconDownload,
   IconHelpCircle,
   IconInfoCircle,
-  IconLayoutSidebarLeftCollapse,
   IconMessageChatbot,
   IconPhotoPlus,
   IconPlus,
@@ -27,7 +26,6 @@ import { ScalableIcon } from './components/common/ScalableIcon'
 import ThemeSwitchButton from './components/dev/ThemeSwitchButton'
 import { useAppTitleBarHeight } from './components/layout/AppTitleBar'
 import { SidebarDesktopDownloadCard, useWebAppDownloadPromptVisible } from './components/layout/DesktopDownloadReminder'
-import { SidebarLowQuotaReminder } from './components/layout/LowQuotaReminder'
 import { overlayStackAtom } from './components/layout/Overlay'
 import { formatShortcut } from './components/Shortcut'
 import SessionList from './components/session/SessionList'
@@ -289,9 +287,7 @@ export default function Sidebar() {
 
         <SidebarUpdateBanner />
 
-        <Box px="xs" pb="xs" className="empty:hidden">
-          <SidebarLowQuotaReminder />
-        </Box>
+        <Box px="xs" pb="xs" className="empty:hidden"></Box>
 
         {showDesktopDownloadCard && (
           <Box px="xs" pb="xs">
@@ -331,7 +327,7 @@ export default function Sidebar() {
                   aria-label={t('Help')}
                   color="chatbox-tertiary"
                   onClick={() => {
-                    navigate({ to: '/guide' })
+                    void platform.openLink('https://docs.chatboxai.app/guides/providers')
                     closeOnSmallScreen()
                   }}
                 />

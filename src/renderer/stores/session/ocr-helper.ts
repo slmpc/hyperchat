@@ -1,45 +1,24 @@
 import { getModel } from '@shared/models'
 import type { ModelInterface } from '@shared/models/types'
 import type { Message, Settings } from '@shared/types'
-import { ModelProviderEnum } from '@shared/types'
 import type { ModelDependencies } from '@shared/types/adapters'
 import { getModelSettings } from '@shared/utils/model_settings'
 import type { ModelMessage } from 'ai'
 import pMap from 'p-map'
 import { createModelDependencies } from '@/adapters'
 
-/**
- * Resolve the OCR model based on user settings and license key.
- * User-configured OCR model takes priority; Chatbox AI is the fallback.
- * Returns null if no OCR model is available (caller decides how to handle).
- */
+/** Resolve the configured OCR model, if available. */
 export function getOCRModel(
   globalSettings: Settings,
   configs: { uuid: string },
   dependencies: ModelDependencies
 ): { model: ModelInterface; providerName: string } | null {
-  const hasUserOcrModel = !!(globalSettings.ocrModel?.provider && globalSettings.ocrModel?.model)
-  const hasLicenseKey = !!globalSettings.licenseKey
-
-  if (!hasUserOcrModel && !hasLicenseKey) {
-    return null
-  }
-
-  if (hasUserOcrModel) {
-    // User has explicitly configured an OCR model — always respect their choice
-    const ocrModelSetting = globalSettings.ocrModel!
-    const modelSettings = getModelSettings(globalSettings, ocrModelSetting.provider, ocrModelSetting.model)
-    return {
-      model: getModel(modelSettings, globalSettings, configs, dependencies),
-      providerName: ocrModelSetting.provider,
-    }
-  }
-
-  // Fallback to Chatbox AI built-in OCR model
-  const modelSettings = getModelSettings(globalSettings, ModelProviderEnum.ChatboxAI, 'chatbox-ocr-1')
+  const selection = globalSettings.ocrModel
+  if (!selection?.provider || !selection.model) return null
+  const modelSettings = getModelSettings(globalSettings, selection.provider, selection.model)
   return {
     model: getModel(modelSettings, globalSettings, configs, dependencies),
-    providerName: 'Chatbox AI',
+    providerName: selection.provider,
   }
 }
 

@@ -59,7 +59,7 @@ export const ModalRegistryStates: StoryObj = {
         <Text size="sm" c="dimmed">
           Registered modal ids include welcome, file-parse-error, content-viewer, session-settings, app-store-rating,
           agent-mode-reward-claim-success, artifact-preview, clear-session-list, export-chat, message-edit, json-viewer,
-          report-content, model-edit, thread-name-edit, vibedrop-publish, and copilot-settings.
+          report-content, model-edit, thread-name-edit, and copilot-settings.
         </Text>
       </Paper>
     </Stack>
@@ -207,24 +207,6 @@ export const JsonViewerStates: StoryObj = {
             flags: ['streaming', 'tool_use'],
           },
         }}
-      />
-    </ModalPreview>
-  ),
-}
-
-export const VibedropPublishStates: StoryObj = {
-  name: 'VibeDrop publish modal visibility and success states',
-  parameters: {
-    uiInventoryTargets: ['src/renderer/modals/VibedropPublish'],
-  },
-  render: () => (
-    <ModalPreview
-      title="VibedropPublish"
-      description="VibeDrop publish modal: visibility choice (link-only/public) and the published URL success state with copy and open actions."
-    >
-      <OpenModal
-        loadModal={() => import('@/modals/VibedropPublish').then((module) => module.default)}
-        props={{ html: '<!doctype html><title>Chatbox demo</title><h1>Hello</h1>', uniqueId: 'story-demo' }}
       />
     </ModalPreview>
   ),

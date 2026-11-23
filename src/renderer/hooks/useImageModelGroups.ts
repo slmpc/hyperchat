@@ -2,14 +2,9 @@ import { buildImageModelGroups, type ImageModelGroup } from '@chatbox/core/appli
 import { ModelProviderEnum, ModelProviderType, type ProviderSettings } from '@shared/types'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import {
-  type ImageModelOption,
-  manualImageModelToOption,
-  providerImageModelsQueryOptions,
-} from '@/packages/image-model-catalog'
+import { type ImageModelOption, providerImageModelsQueryOptions } from '@/packages/image-model-catalog'
 import platform from '@/platform'
 import { useLanguage, useSettingsStore } from '@/stores/settingsStore'
-import useChatboxAIModels from './useChatboxAIModels'
 import { useProviders } from './useProviders'
 
 export type { ImageModelGroup } from '@chatbox/core/application/image-generation'
@@ -20,12 +15,10 @@ export function useProviderImageModels(
   providerSettings?: ProviderSettings
 ): ImageModelOption[] {
   const language = useLanguage()
-  const licenseKey = useSettingsStore((state) => state.licenseKey)
   const { data } = useQuery({
     ...providerImageModelsQueryOptions(provider, {
       apiKey: provider === ModelProviderEnum.OpenRouter ? providerSettings?.apiKey : undefined,
       language,
-      licenseKey,
     }),
     enabled,
   })
@@ -35,7 +28,6 @@ export function useProviderImageModels(
 
 export function useImageModelGroups(): ImageModelGroup[] {
   const { providers } = useProviders()
-  const { chatboxAIImageModels } = useChatboxAIModels()
   const providerSettingsMap = useSettingsStore((state) => state.providers)
 
   const openAIProvider = providers.find((p) => p.id === ModelProviderEnum.OpenAI)
@@ -60,12 +52,11 @@ export function useImageModelGroups(): ImageModelGroup[] {
         settings: { providers: providerSettingsMap },
         platform: platform.type,
         remoteModels: {
-          [ModelProviderEnum.ChatboxAI]: chatboxAIImageModels.map(manualImageModelToOption),
           [ModelProviderEnum.OpenAI]: openAIImageModels,
           [ModelProviderEnum.OpenRouter]: openRouterImageModels,
           [ModelProviderEnum.Gemini]: geminiImageModels,
         },
       }),
-    [providers, providerSettingsMap, chatboxAIImageModels, openAIImageModels, openRouterImageModels, geminiImageModels]
+    [providers, providerSettingsMap, openAIImageModels, openRouterImageModels, geminiImageModels]
   )
 }
